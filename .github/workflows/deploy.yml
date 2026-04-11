@@ -18,7 +18,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "18"
+          node-version: "20"
           cache: "npm"
 
       - name: Install dependencies
@@ -32,4 +32,3 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./out
-          cname: solankijd007.github.io
