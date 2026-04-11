@@ -1,58 +1,72 @@
 # GitHub Pages Deployment Guide
 
-## Setup
+## ⚡ Critical Setup Step
 
-1. **Repository Settings**
-   - Go to your GitHub repository: `https://github.com/solankijd007/spider-porfolio`
-   - Navigate to Settings → Pages
-   - Under "Source", select **Deploy from a branch**
-   - Select branch: **main**
-   - Select folder: **/(root)** (for root domain deployment)
+**Your GitHub Pages site will NOT work until you complete this:**
 
-2. **Verify Workflow**
-   - Go to Actions tab in your repo
-   - Confirm the "Deploy to GitHub Pages" workflow exists
-   - Workflow will run automatically on every push to `main`
+1. Go to your repository on GitHub: https://github.com/solankijd007/solankijd007
+2. Click **Settings** → **Pages**
+3. Under "Source", select **Deploy from a branch**
+4. Select branch: **gh-pages** ← (Important!)
+5. Select folder: **/(root)**
+6. Click **Save**
 
-## Local Testing
+⏳ **Wait 1-2 minutes** for GitHub Pages to process and activate.
 
+## How It Works
+
+- Your code stays on `main` branch
+- GitHub Actions automatically builds and pushes to `gh-pages` branch
+- GitHub Pages serves from `gh-pages` branch
+- Your site will appear at: **https://solankijd007.github.io/**
+
+## Automatic Deployment
+
+Every time you push to `main`:
 ```bash
-# Build for export
-npm run export
-
-# Verify the `out/` directory was created with .nojekyll
-ls -la out/
-```
-
-## Deployment
-
-```bash
-# Push to main branch
-git add .
-git commit -m "Configure for GitHub Pages"
 git push origin main
 ```
 
-The GitHub Actions workflow will:
-1. ✅ Install dependencies
-2. ✅ Build and export static site to `out/`
-3. ✅ Create `.nojekyll` file (prevents Jekyll processing)
-4. ✅ Upload to GitHub Pages
+The workflow automatically:
+1. ✅ Installs dependencies
+2. ✅ Builds the project (`npm run export`)
+3. ✅ Pushes static files to `gh-pages` branch
+4. ✅ GitHub Pages serves your site
 
-Your site will be live at: **https://solankijd007.github.io/**
+## Manual Build Test (Local)
 
-## Notes
-
-- `output: 'export'` → Static HTML export (required for GitHub Pages)
-- `images.unoptimized: true` → Images work without Next.js Image Optimization
-- `.nojekyll` → Tells GitHub Pages to skip Jekyll processing
-- Assets (images, CSS) are self-contained in the `out/` folder
+```bash
+npm run export
+ls -la out/  # Verify build output
+```
 
 ## Troubleshooting
 
-If the site doesn't appear:
-1. Wait 1-2 minutes for GitHub Pages to process
-2. Check Actions tab for workflow errors
-3. Verify Settings → Pages shows successful deployment
-4. Clear browser cache (Ctrl+Shift+Delete)
-5. Check browser console for broken asset paths
+**Site still shows 404?**
+1. ✅ Verify you set Pages source to `gh-pages` branch (not `main`)
+2. Wait 2-3 minutes after configuration
+3. Hard refresh browser: `Ctrl+Shift+R`
+4. Check Actions tab for workflow errors
+
+**Workflow failing?**
+- Go to Actions tab in GitHub
+- Check "Deploy to GitHub Pages" workflow
+- Click on failed run to see error details
+
+## File Structure
+
+```
+Repository (main branch)
+├── src/
+├── public/
+├── next.config.mjs
+├── package.json
+└── ... (source files)
+
+gh-pages branch (auto-generated)
+└── out/ (static HTML, auto-deployed)
+    ├── index.html
+    ├── 404.html
+    ├── _next/
+    └── assets/
+```
