@@ -24,27 +24,41 @@ uniform float uHovered;
 uniform float uRadius;
 uniform float uSoftness;
 uniform vec2 uResolution;
-uniform vec2 uImageResolution;
+uniform vec2 uImage1Resolution;
+uniform vec2 uImage2Resolution;
+
+// Per-texture alignment control
+uniform vec2 uTexture1Offset;
+uniform vec2 uTexture1Scale;
+uniform vec2 uTexture2Offset;
+uniform vec2 uTexture2Scale;
 
 varying vec2 vUv;
 
-void main() {
-  // Correct the UVs to maintain aspect ratio (background-size: cover equivalent)
+vec2 computeCoverUV(vec2 uv, vec2 resolution, vec2 imageRes, vec2 offset, vec2 scale) {
+  // background-size: cover equivalent
   vec2 ratio = vec2(
-    min((uResolution.x / uResolution.y) / (uImageResolution.x / uImageResolution.y), 1.0),
-    min((uResolution.y / uResolution.x) / (uImageResolution.y / uImageResolution.x), 1.0)
+    min((resolution.x / resolution.y) / (imageRes.x / imageRes.y), 1.0),
+    min((resolution.y / resolution.x) / (imageRes.y / imageRes.x), 1.0)
   );
   
-  vec2 centeredUv = vUv - vec2(0.5);
-  vec2 uvCover = centeredUv * ratio + vec2(0.5);
+  vec2 centeredUv = uv - vec2(0.5);
+  // Apply custom scale to zoom in/out on the image
+  vec2 scaledUv = centeredUv * ratio * scale;
+  // Apply offset to reposition the image
+  return scaledUv + vec2(0.5) + offset;
+}
 
-  // Get the base colors from both textures using the correctly scaled UVs
-  vec4 color1 = texture2D(uTexture1, uvCover);
+void main() {
+  // Compute independent UVs for each texture layer
+  vec2 uv1 = computeCoverUV(vUv, uResolution, uImage1Resolution, uTexture1Offset, uTexture1Scale);
+  vec2 uv2 = computeCoverUV(vUv, uResolution, uImage2Resolution, uTexture2Offset, uTexture2Scale);
+
+  // Get the base color from the spider-man texture
+  vec4 color1 = texture2D(uTexture1, uv1);
   
-  // Add a slight distortion for the top layer near the mask edge
-  
-  // Calculate mask
-  // Correct mouse distance for aspect ratio of the screen so the mask is perfectly circular
+  // Calculate mask for the circular reveal
+  // Correct mouse distance for aspect ratio so the mask is perfectly circular
   vec2 screenRatio = vec2(uResolution.x / uResolution.y, 1.0);
   if (uResolution.y > uResolution.x) {
     screenRatio = vec2(1.0, uResolution.y / uResolution.x);
@@ -55,22 +69,22 @@ void main() {
 
   float dist = distance(uvMouse, cursor);
   
-  // Add an effect where the mask scales in when uHovered increases (from 0 to 1)
+  // Mask scales in when uHovered increases (0 to 1)
   float currentRadius = uRadius * uHovered;
 
-  // The mask (1.0 where top image shows, 0.0 where bottom image shows)
+  // The mask (1.0 where man image shows, 0.0 where spiderman shows)
   float mask = 1.0 - smoothstep(currentRadius - uSoftness, currentRadius + uSoftness, dist);
   
   // Add a small ripple / distortion on the edge of the mask
-  vec2 distortedUv = uvCover + (mask * (1.0 - mask)) * 0.05 * uHovered;
-  vec4 color2 = texture2D(uTexture2, distortedUv);
+  vec2 distortedUv2 = uv2 + (mask * (1.0 - mask)) * 0.03 * uHovered;
+  vec4 color2 = texture2D(uTexture2, distortedUv2);
 
-  // Mix between color1 and color2 based on the mask
+  // Mix between spiderman and man based on the mask
   vec4 finalColor = mix(color1, color2, mask);
 
-  // Add subtle light bloom/glow near the cursor using the cursor distance
+  // Subtle light bloom/glow near the cursor
   float glow = 1.0 - smoothstep(0.0, currentRadius * 1.5, dist);
-  finalColor.rgb += vec3(0.05, 0.08, 0.1) * glow * uHovered;
+  finalColor.rgb += vec3(0.04, 0.06, 0.08) * glow * uHovered;
 
   gl_FragColor = finalColor;
 }

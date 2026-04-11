@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import gsap from 'gsap';
 import { vertexShader, fragmentShader } from './HeroShaders';
 
-import imgSpiderman from '../assets/spiderman/20260407_055437.png';
+import imgSpiderman from '../assets/spiderman/image.png';
 import imgMan from '../assets/man/1775519899126.png';
 
 const spidermanTextureSrc = typeof imgSpiderman === 'string' ? imgSpiderman : imgSpiderman.src;
@@ -76,7 +76,16 @@ export default function Hero() {
       uSoftness: { value: 0.15 }, // Softness of the edge
       uScale: { value: 0.05 }, // Scale zoom amount
       uResolution: { value: new THREE.Vector2(width, height) },
-      uImageResolution: { value: new THREE.Vector2(1920, 1080) } // Assuming 16:9 for default
+      // Separate image resolutions for each texture
+      uImage1Resolution: { value: new THREE.Vector2(784, 661) },  // Spider-Man image
+      uImage2Resolution: { value: new THREE.Vector2(2754, 1536) }, // Man image
+      // Per-texture alignment: adjust offset & scale to align face+shoulders
+      // Spider-Man (black bg, 784x661): face centered, slight zoom & shift down for shoulders
+      uTexture1Offset: { value: new THREE.Vector2(0.0, 0.04) },
+      uTexture1Scale: { value: new THREE.Vector2(0.82, 0.82) },
+      // Man photo (2754x1536): shift down more to reveal full hair/forehead
+      uTexture2Offset: { value: new THREE.Vector2(0.0, -0.08) },
+      uTexture2Scale: { value: new THREE.Vector2(0.92, 0.92) },
     };
     
     uniformRef.current = uniforms;
@@ -97,9 +106,12 @@ export default function Hero() {
       uniforms.uTexture1.value = tex1;
       uniforms.uTexture2.value = tex2;
       
-      // Update image resolution based on the first loaded texture's actual dimensions
+      // Update image resolutions based on actual loaded texture dimensions
       if (tex1.image) {
-        uniforms.uImageResolution.value.set(tex1.image.width, tex1.image.height);
+        uniforms.uImage1Resolution.value.set(tex1.image.width, tex1.image.height);
+      }
+      if (tex2.image) {
+        uniforms.uImage2Resolution.value.set(tex2.image.width, tex2.image.height);
       }
       
       isTexturesLoaded = true;
