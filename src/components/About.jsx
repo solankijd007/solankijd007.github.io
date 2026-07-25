@@ -1,9 +1,9 @@
 'use client';
 
-import portrait from '../assets/portrait.webp';
+import { PORTRAITS, usePortrait } from '../lib/portraits';
+import { SITE } from '../lib/site';
 import { useReveal } from '../lib/useReveal';
-
-const portraitSrc = typeof portrait === 'string' ? portrait : portrait.src;
+import { PortraitSweep } from './PortraitSwap';
 
 const STATS = [
   { value: '4', suffix: ' yrs', label: 'Building for production' },
@@ -49,6 +49,8 @@ const SKILLS = [
 
 export default function About() {
   const sectionRef = useReveal();
+  // Shared with the Hero — clicking either portrait switches both.
+  const { index, swaps, next } = usePortrait();
 
   return (
     <section
@@ -65,19 +67,36 @@ export default function About() {
             {/* Ratio matches the source file so nothing is cropped, and the width
                 is capped — the photo is 410x530, so a wider box would just be
                 upscaling it. */}
-            <div className="relative mx-auto aspect-41/53 w-full max-w-sm overflow-hidden rounded-2xl border border-line lg:max-w-md">
-              {/* Pre-optimized WebP on a static export — next/image would add JS
-                  without optimizing anything. */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={portraitSrc}
-                alt="Jagdish Solanki"
-                loading="lazy"
-                decoding="async"
-                className="h-full w-full object-cover object-center grayscale transition-[filter] duration-700 hover:grayscale-0"
-              />
-              <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-ink-2 via-transparent to-transparent" />
-            </div>
+            {/* eslint-disable @next/next/no-img-element */}
+            <button
+              type="button"
+              onClick={next}
+              aria-label={`Portrait of ${SITE.name}. Click to switch photo.`}
+              className="portrait-card group relative mx-auto block aspect-41/53 w-full max-w-sm overflow-hidden rounded-2xl border border-line transition-transform duration-300 active:scale-[0.99] lg:max-w-md"
+            >
+              {PORTRAITS.map((photo, i) => (
+                <span
+                  key={photo.label}
+                  data-active={i === index}
+                  className="portrait-plate absolute inset-0 block"
+                >
+                  {/* Pre-optimized WebP on a static export — next/image would
+                      add JS without optimizing anything. */}
+                  <img
+                    src={photo.src}
+                    alt=""
+                    aria-hidden="true"
+                    loading="lazy"
+                    decoding="async"
+                    className="about-plate h-full w-full object-cover object-center"
+                  />
+                </span>
+              ))}
+
+              <span className="pointer-events-none absolute inset-0 bg-linear-to-t from-ink-2 via-transparent to-transparent" />
+
+              <PortraitSweep swaps={swaps} />
+            </button>
 
             <div className="mt-8 grid grid-cols-3 gap-4 border-t border-line pt-8">
               {STATS.map((stat) => (

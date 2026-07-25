@@ -104,6 +104,12 @@ body {
   initial-value: 0px;
 }
 
+@property --swap-blur {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
 .hero-stage {
   --mx: 50%;
   --my: 50%;
@@ -171,6 +177,96 @@ body {
 /* Browsers without @property support still get the reveal — the transitions on
    --mx/--my/--mr are simply ignored, so it tracks the cursor instantly instead
    of easing. Degrades in feel, never in function. */
+
+/* ---------------------------------------------------------------------------
+   Portrait swap
+
+   Every portrait is mounted up front as its own stacked plate, so clicking a
+   card crossfades between them instead of swapping an <img src> — a swap would
+   flash while the new file decodes, and there is no crossfade to be had from a
+   single element.
+
+   A plate is a wrapper *around* the images, not the images themselves. That
+   keeps the swap's opacity and blur off the same elements as the hero mask and
+   the grayscale treatment, so neither rule has to know the other exists — one
+   `transition` declaration per element, no specificity juggling.
+   --------------------------------------------------------------------------- */
+
+.portrait-card {
+  cursor: pointer;
+}
+
+.portrait-plate {
+  --swap-blur: 0px;
+  opacity: 1;
+  filter: blur(var(--swap-blur));
+  transition:
+    opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    --swap-blur 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* The outgoing photo dissolves out of focus rather than simply dimming. */
+.portrait-plate[data-active='false'] {
+  --swap-blur: 14px;
+  opacity: 0;
+}
+
+/* A light crossing the card on each swap — deliberately neutral white, not the
+   teal accent: this passes straight over a face, and any tint there reads as a
+   colour cast on the photo rather than as light.
+
+   Transparent at rest as well as at the keyframe edges. An animation with no
+   fill-mode drops back to the element's own style once it finishes, so without
+   this the band parks itself across the card. PortraitSweep also unmounts the
+   element on animationend, so the two guards are independent. */
+.portrait-sweep {
+  opacity: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 42%,
+    rgba(255, 255, 255, 0.14) 50%,
+    transparent 58%
+  );
+  animation: portrait-sweep 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes portrait-sweep {
+  from {
+    opacity: 0;
+    transform: translate3d(-120%, 0, 0);
+  }
+  30% {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(120%, 0, 0);
+  }
+}
+
+/* About's portrait stays desaturated until the card is hovered or focused. */
+.about-plate {
+  filter: grayscale(1);
+  transition: filter 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.portrait-card:hover .about-plate,
+.portrait-card:focus-visible .about-plate {
+  filter: grayscale(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Still swap, just without the focus pull or the light. */
+  .portrait-plate,
+  .portrait-plate[data-active='false'] {
+    --swap-blur: 0px;
+    transition: opacity 0.2s linear;
+  }
+
+  .portrait-sweep {
+    display: none;
+  }
+}
 
 /* ---------------------------------------------------------------------------
    Utilities

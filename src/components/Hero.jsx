@@ -1,10 +1,9 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import portrait from '../assets/portrait.webp';
+import { PORTRAITS, usePortrait } from '../lib/portraits';
 import { SITE } from '../lib/site';
-
-const portraitSrc = typeof portrait === 'string' ? portrait : portrait.src;
+import { PortraitSweep } from './PortraitSwap';
 
 const FACTS = [
   '4 years shipping production web products',
@@ -16,6 +15,7 @@ export default function Hero() {
   // The reveal lives on the portrait card, so mask coordinates are measured
   // against that box rather than the section.
   const mediaRef = useRef(null);
+  const { index, swaps, next } = usePortrait();
 
   useEffect(() => {
     const media = mediaRef.current;
@@ -142,35 +142,52 @@ export default function Hero() {
             column would upscale it past the point where it still looks sharp.
             The aspect ratio matches the file exactly, so nothing is cropped.
 
-            It renders twice — a desaturated base plate and a full-colour plate
-            punched through by a cursor-following mask. Same file, one download. */}
+            Each portrait renders twice — a desaturated base plate and a
+            full-colour plate punched through by a cursor-following mask. Same
+            file, one download.
+
+            Clicking the card crossfades to the next portrait. The button
+            carries the accessible name, so every image inside is decorative. */}
         {/* eslint-disable @next/next/no-img-element */}
         <div className="order-1 flex flex-col items-center lg:order-2">
-          <div
+          <button
+            type="button"
             ref={mediaRef}
-            className="hero-stage relative aspect-41/53 w-full max-w-65 overflow-hidden rounded-2xl border border-line shadow-2xl shadow-black/60 sm:max-w-75 lg:max-w-95"
+            onClick={next}
+            aria-label={`Portrait of ${SITE.name}, ${SITE.role}. Click to switch photo.`}
+            className="hero-stage portrait-card group relative aspect-41/53 w-full max-w-65 overflow-hidden rounded-2xl border border-line shadow-2xl shadow-black/60 transition-transform duration-300 active:scale-[0.98] sm:max-w-75 lg:max-w-95"
           >
-            <img
-              src={portraitSrc}
-              alt=""
-              aria-hidden="true"
-              fetchPriority="high"
-              decoding="async"
-              className="hero-base absolute inset-0 h-full w-full object-cover"
-            />
-            <img
-              src={portraitSrc}
-              alt={`${SITE.name} — ${SITE.role}`}
-              fetchPriority="high"
-              decoding="async"
-              className="hero-reveal absolute inset-0 h-full w-full object-cover"
-            />
-            <div className="hero-ring pointer-events-none absolute inset-0" />
-          </div>
+            {PORTRAITS.map((photo, i) => (
+              <span
+                key={photo.label}
+                data-active={i === index}
+                className="portrait-plate absolute inset-0 block"
+              >
+                <img
+                  src={photo.src}
+                  alt=""
+                  aria-hidden="true"
+                  // Only the portrait that renders on load competes for
+                  // priority — the rest are 20KB of pre-warmed crossfade.
+                  fetchPriority={i === 0 ? 'high' : 'low'}
+                  decoding="async"
+                  className="hero-base absolute inset-0 h-full w-full object-cover"
+                />
+                <img
+                  src={photo.src}
+                  alt=""
+                  aria-hidden="true"
+                  fetchPriority={i === 0 ? 'high' : 'low'}
+                  decoding="async"
+                  className="hero-reveal absolute inset-0 h-full w-full object-cover"
+                />
+              </span>
+            ))}
 
-          <p className="mt-5 hidden text-[11px] uppercase tracking-[0.3em] text-white/25 lg:block">
-            Hover to reveal
-          </p>
+            <span className="hero-ring pointer-events-none absolute inset-0" />
+
+            <PortraitSweep swaps={swaps} />
+          </button>
         </div>
       </div>
     </section>
