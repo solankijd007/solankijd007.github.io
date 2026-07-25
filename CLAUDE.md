@@ -36,6 +36,19 @@ Rules to preserve when editing:
 - The portrait is a **contained card**, not a full-bleed panel, because the source photo is only 410x530 — stretching it across a viewport-sized column upscales it past the point where it looks sharp. The card is 260px on phones, 380px on desktop, and its `aspect-41/53` matches the file exactly so nothing is cropped. If a higher-resolution photo ever replaces it, a full-bleed treatment becomes viable again.
 - The desktop grid track for the card is an explicit `380px`, not `auto`. An `auto` track sizes to min-content, which collapses the card's `w-full` to near-zero.
 
+### The portrait swap
+
+The portrait shows in two places (Hero and About) and both are clickable — a click crossfades to the next photo in `PORTRAITS` (`src/lib/portraits.js`). The card is bare on purpose: no badge, no dots, no caption. The only affordance is the pointer cursor and the swap itself.
+
+- `usePortrait()` is backed by a **module-level store**, not per-component state, so the Hero and About portraits can never disagree. It stores only a monotonic swap count and derives the active index from it: `useSyncExternalStore` compares snapshots by identity, so returning a fresh object from `getSnapshot` would loop. The count doubles as the key that replays the sweep animation.
+- Every photo is mounted up front as its own `.portrait-plate`, and the swap is an opacity/blur crossfade between plates. Swapping an `<img src>` instead would flash while the new file decodes, and gives nothing to crossfade.
+- A plate is a **wrapper around** the images, never the images themselves. That keeps the swap's `opacity`/`filter` off the same elements as `.hero-base`'s grayscale and `.hero-reveal`'s mask — `transition` is not additive, so two rules on one element means one silently wins.
+- The sweep is guarded twice, because a stranded one paints a bright band down the middle of a face. `.portrait-sweep` is `opacity: 0` **at rest**, not just at its keyframe edges — a CSS animation with no `fill-mode` reverts to the element's own style when it ends. And `PortraitSweep` unmounts on `animationend`, so there is nothing left to style. Keep both; they fail independently.
+- The sweep is neutral white on purpose. It crosses a face, so the teal accent read as a colour cast on the photo rather than as light.
+- Only the portrait that renders on load gets `fetchPriority="high"`; the rest are `low` so they don't compete with LCP.
+
+Adding a third photo is just another entry in `PORTRAITS` — the plates, the swap arithmetic and the crossfade are all length-driven.
+
 ### Styling
 
 - Tailwind CSS 4 via PostCSS (`@tailwindcss/postcss`); everything global is in `src/app/globals.css`.
@@ -55,7 +68,7 @@ To re-verify after layout changes, the scratchpad scripts hit-test with `element
 
 ### Images
 
-- The only image is `src/assets/portrait.webp` (410x530, ~24KB), imported as a module; components handle both string and `{ src }` import shapes. `public/og.jpg` is the social card — a composed 1200x630 layout (dark canvas, portrait right, type left), not a crop of the photo.
+- The portraits are `src/assets/portrait.webp` and `portrait-alt.webp` (both 410x530, ~20-24KB), imported as modules and normalised in `src/lib/portraits.js`, which handles both string and `{ src }` import shapes. Keep any new portrait at 410x530 so it drops into the same `aspect-41/53` card without cropping. `public/og.jpg` is the social card — a composed 1200x630 layout (dark canvas, portrait right, type left), not a crop of the photo.
 - When swapping the portrait: scan the source for a printed border first. The current photo arrived as a 420x540 ID scan with a ~4px black frame on every edge, which had to be cropped off or it showed as a dark ring inside the rounded card. Never upscale to fake resolution — set the card size to suit the file instead, and update `aspect-41/53` if the new ratio differs.
 - `images.unoptimized: true` is required in `next.config.mjs` for static export — keep it. Because of that, `next/image` optimizes nothing and only adds JS, so plain `<img>` with a pre-sized WebP is the correct choice here (the `no-img-element` lint rule is suppressed with a reason at each use).
 - Pre-optimize new images before committing them — resize to their real display size and convert to WebP. `sharp` is available transitively via Next. The repo previously carried 8.5MB of PNGs, including a 5.7MB file that was never imported.
