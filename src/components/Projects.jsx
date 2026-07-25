@@ -137,7 +137,7 @@ export default function Projects() {
               data-card
               data-reveal
               style={{ '--d': `${index * 90}ms` }}
-              className="group relative flex flex-col overflow-hidden rounded-2xl border border-line bg-ink-3/60 p-8 transition-colors duration-500 hover:border-accent/35 md:p-10"
+              className="group relative flex flex-col overflow-hidden rounded-2xl border border-line bg-ink-3/60 p-6 transition-colors duration-500 hover:border-accent/35 sm:p-8 md:p-10"
             >
               {/* Cursor-following glow */}
               <div
@@ -149,26 +149,31 @@ export default function Projects() {
                 }}
               />
 
-              <div className="relative flex items-start justify-between gap-6">
-                <div>
+              {/* File number and status pill share one row. Both are small, so
+                  this fits down to 320px with no breakpoint juggling, and the
+                  title always gets the card's full width to wrap into — putting
+                  the pill beside the title needed ~295px, which the two-column
+                  grid doesn't give a card until `lg`. */}
+              <div className="relative">
+                <div className="flex items-center justify-between gap-3">
                   <p className="font-mono text-[11px] tracking-[0.3em] text-white/30">
                     {project.id}
                   </p>
-                  <h3 className="mt-4 text-2xl font-bold tracking-tight text-white md:text-3xl">
-                    {project.name}
-                  </h3>
-                  <p className="mt-2 text-sm text-white/45">{project.role}</p>
+                  <span
+                    className={`shrink-0 rounded-full border px-3 py-1 text-[11px] font-medium uppercase tracking-wider ${
+                      project.status === 'Live'
+                        ? 'border-accent/30 bg-accent/10 text-accent-soft'
+                        : 'border-white/15 bg-white/5 text-white/50'
+                    }`}
+                  >
+                    {project.status}
+                  </span>
                 </div>
 
-                <span
-                  className={`shrink-0 rounded-full border px-3 py-1 text-[11px] font-medium uppercase tracking-wider ${
-                    project.status === 'Live'
-                      ? 'border-accent/30 bg-accent/10 text-accent-soft'
-                      : 'border-white/15 bg-white/5 text-white/50'
-                  }`}
-                >
-                  {project.status}
-                </span>
+                <h3 className="mt-4 text-2xl font-bold tracking-tight text-white md:text-3xl">
+                  {project.name}
+                </h3>
+                <p className="mt-2 text-sm text-white/45">{project.role}</p>
               </div>
 
               <p className="relative mt-6 flex-1 text-[15px] font-light leading-relaxed text-white/60">
@@ -191,7 +196,7 @@ export default function Projects() {
                   href={project.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-sm font-medium text-white/70 transition-colors duration-300 hover:text-accent"
+                  className="tap inline-flex items-center gap-2 text-sm font-medium text-white/70 transition-colors duration-300 hover:text-accent"
                 >
                   {project.domain}
                   <svg

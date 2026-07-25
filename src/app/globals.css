@@ -177,6 +177,25 @@ body {
    --------------------------------------------------------------------------- */
 
 @layer utilities {
+  /* Grows a small inline control's tap area to the 44px minimum without moving
+     anything. Text links sit on a ~19px line box, which is fine to click with a
+     mouse and awkward to hit with a thumb; this lays an invisible, full-width
+     hit target over the link instead of padding it and reflowing the design.
+     Only height is corrected — apply this to links already wider than 44px. */
+  .tap {
+    position: relative;
+  }
+
+  .tap::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    top: 50%;
+    translate: 0 -50%;
+    height: 100%;
+    min-height: 44px;
+  }
+
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar {
     -ms-overflow-style: none;

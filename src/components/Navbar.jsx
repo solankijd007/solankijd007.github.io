@@ -57,9 +57,11 @@ export default function Navbar() {
         }`}
       >
         <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 md:px-10 lg:px-14">
+          {/* -m-2/p-2 pushes the 36px badge out to a 52px tap area without
+              changing where the logo sits. */}
           <a
             href="#top"
-            className="group flex items-center gap-3"
+            className="group -m-2 flex items-center gap-3 p-2"
             aria-label={`${SITE.name} — back to top`}
           >
             <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 text-[13px] font-bold tracking-tight text-white transition-colors duration-300 group-hover:border-accent group-hover:text-accent">
@@ -75,7 +77,7 @@ export default function Navbar() {
               <a
                 key={link.name}
                 href={link.href}
-                className="group relative text-sm font-medium text-white/55 transition-colors duration-300 hover:text-white"
+                className="tap group relative text-sm font-medium text-white/55 transition-colors duration-300 hover:text-white"
               >
                 {link.name}
                 <span className="absolute -bottom-1.5 left-1/2 h-px w-0 bg-accent transition-all duration-300 group-hover:left-0 group-hover:w-full" />
@@ -87,7 +89,7 @@ export default function Navbar() {
             <a
               href={asset(SITE.resume)}
               download
-              className="inline-flex items-center gap-2 rounded-full border border-white/20 px-5 py-2.5 text-sm font-medium text-white transition-colors duration-300 hover:border-accent hover:text-accent"
+              className="inline-flex items-center gap-2 rounded-full border border-white/20 px-5 py-3 text-sm font-medium text-white transition-colors duration-300 hover:border-accent hover:text-accent"
             >
               Résumé
               <svg
@@ -108,9 +110,10 @@ export default function Navbar() {
             </a>
           </div>
 
+          {/* Explicit 44x44 — this is the only way into the nav on a phone. */}
           <button
             type="button"
-            className="relative z-50 -mr-2 p-2 text-white md:hidden"
+            className="relative z-50 -mr-2.5 flex h-11 w-11 items-center justify-center text-white md:hidden"
             onClick={() => setIsMenuOpen((open) => !open)}
             aria-expanded={isMenuOpen}
             aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
@@ -145,14 +148,14 @@ export default function Navbar() {
         }}
         aria-hidden={!isMenuOpen}
       >
-        <nav className="flex flex-col items-center gap-8">
+        <nav className="flex flex-col items-center gap-6">
           {NAV_LINKS.map((link) => (
             <a
               key={link.name}
               href={link.href}
               onClick={() => setIsMenuOpen(false)}
               tabIndex={isMenuOpen ? 0 : -1}
-              className="text-3xl font-light tracking-wide text-white/60 transition-colors duration-300 hover:text-white"
+              className="px-6 py-2 text-3xl font-light tracking-wide text-white/60 transition-colors duration-300 hover:text-white"
             >
               {link.name}
             </a>

@@ -98,7 +98,7 @@ export default function Contact() {
                       rel={
                         channel.href.startsWith('http') ? 'noopener noreferrer' : undefined
                       }
-                      className="text-[15px] text-white/75 transition-colors duration-300 hover:text-accent"
+                      className="tap inline-block text-[15px] text-white/75 transition-colors duration-300 hover:text-accent"
                     >
                       {channel.value}
                     </a>
@@ -121,7 +121,7 @@ export default function Contact() {
                   <a
                     href={asset(SITE.resume)}
                     download
-                    className="text-[15px] text-white/75 transition-colors duration-300 hover:text-accent"
+                    className="tap inline-block text-[15px] text-white/75 transition-colors duration-300 hover:text-accent"
                   >
                     Download PDF
                   </a>
@@ -232,7 +232,10 @@ export default function Contact() {
             © {new Date().getFullYear()} {SITE.name}. Built with Next.js &amp; Tailwind
             CSS.
           </p>
-          <a href="#top" className="transition-colors duration-300 hover:text-white">
+          <a
+            href="#top"
+            className="tap inline-block transition-colors duration-300 hover:text-white"
+          >
             Back to top ↑
           </a>
         </footer>

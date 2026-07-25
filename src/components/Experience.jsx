@@ -118,7 +118,7 @@ export default function Experience() {
         <div
           data-reveal
           style={{ '--d': '240ms' }}
-          className="mt-16 flex flex-col gap-1 border-t border-line pt-10 md:flex-row md:items-baseline md:justify-between md:gap-8"
+          className="mt-16 flex flex-col gap-3 border-t border-line pt-10 md:flex-row md:items-baseline md:justify-between md:gap-8"
         >
           <div>
             <h3 className="text-lg font-semibold tracking-tight text-white">

@@ -94,8 +94,10 @@ export default function Hero() {
 
           <ul className="mt-10 max-w-xl space-y-2.5 border-t border-line pt-6 text-sm text-white/55">
             {FACTS.map((fact) => (
-              <li key={fact} className="flex items-center gap-2.5">
-                <span className="h-1 w-1 shrink-0 rounded-full bg-accent" />
+              // Aligned to the first line, not the block's centre — these facts
+              // wrap to two lines on narrow screens.
+              <li key={fact} className="flex gap-2.5">
+                <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-accent" />
                 {fact}
               </li>
             ))}
