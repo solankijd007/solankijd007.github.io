@@ -91,7 +91,7 @@ export default function Navbar() {
               download
               className="inline-flex items-center gap-2 rounded-full border border-white/20 px-5 py-3 text-sm font-medium text-white transition-colors duration-300 hover:border-accent hover:text-accent"
             >
-              Résumé
+              Resume
               <svg
                 width="13"
                 height="13"
@@ -169,7 +169,7 @@ export default function Navbar() {
             onClick={() => setIsMenuOpen(false)}
             className="mt-6 rounded-full border border-white/25 px-8 py-3 text-sm tracking-wide text-white transition-colors duration-300 hover:border-accent hover:text-accent"
           >
-            Download Résumé
+            Download Resume
           </a>
         </nav>
       </div>

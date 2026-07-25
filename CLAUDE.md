@@ -18,7 +18,7 @@ Single-page portfolio site built with Next.js 16 App Router (JSX, no TypeScript)
 Runtime dependencies are only `next`, `react` and `react-dom` — **keep it that way**. Animation and effects are deliberately hand-rolled in CSS rather than pulled from libraries; the site previously shipped Three.js and GSAP (~176KB gzip) for effects that CSS does natively.
 
 - `src/app/page.jsx` stacks the section components from `src/components/`: Navbar, Hero, About, Experience, Projects, Contact.
-- `src/lib/site.js` is the single source of truth for personal details (name, email, phone, GitHub/LinkedIn, résumé path, canonical URL). Change contact info there, not in components. It also exports `asset()`, which prefixes `/public` paths with the basePath — plain `<a>`/`<img>` tags need this since Next only rewrites basePath for `next/link` and `next/image`.
+- `src/lib/site.js` is the single source of truth for personal details (name, email, phone, GitHub/LinkedIn, resume path, canonical URL). Change contact info there, not in components. It also exports `asset()`, which prefixes `/public` paths with the basePath — plain `<a>`/`<img>` tags need this since Next only rewrites basePath for `next/link` and `next/image`.
 - `src/lib/useReveal.js` is the scroll-reveal hook (IntersectionObserver). Attach its ref to a section; the section gets an `.in` class on first intersection and CSS animates every `[data-reveal]` descendant. Stagger children with `style={{ '--d': '120ms' }}`. The observer disconnects after firing once.
 - CV content lives in module-level constants at the top of each section component (`ROLES`, `PROJECTS`, `SKILLS`, `STATS`, …).
 
@@ -29,6 +29,7 @@ Runtime dependencies are only `next`, `react` and `react-dom` — **keep it that
 The mask centre and radius are the registered custom properties `--mx` / `--my` / `--mr` (see `@property` in `globals.css`), so the browser interpolates them as ordinary CSS transitions. JavaScript only writes `--mx`/`--my` on actual pointer movement — there is no per-frame render loop.
 
 Rules to preserve when editing:
+
 - Measure `getBoundingClientRect()` fresh inside the pointer handler. Caching width/height in the effect closure is what previously broke cursor tracking after a window resize.
 - The custom properties live on the **portrait card** (`.hero-stage`), not the section, so coordinates are measured against the box actually being masked.
 - Pointer tracking is skipped entirely unless `(pointer: fine)` matches and reduced motion is off. Under `(pointer: coarse)` CSS hides the base plate and unmasks the colour plate, so phones just show the finished portrait with no per-frame mask work.

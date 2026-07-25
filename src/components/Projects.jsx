@@ -20,7 +20,7 @@ const PROJECTS = [
     name: 'SupplierX',
     domain: 'aeonx.supplierx.cloud',
     href: 'https://aeonx.supplierx.cloud',
-    status: 'In development',
+    status: 'Live',
     role: 'Backend architecture & delivery',
     description:
       'Procure-to-Pay SaaS: supplier onboarding with PAN/GST verification, purchase order and approval workflows, and SAP integration on a multi-tenant Node.js backend.',

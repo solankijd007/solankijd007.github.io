@@ -115,7 +115,7 @@ export default function Contact() {
 
               <div>
                 <dt className="text-xs font-medium uppercase tracking-[0.2em] text-white/35">
-                  Résumé
+                  Resume
                 </dt>
                 <dd className="mt-2">
                   <a
