@@ -1,9 +1,7 @@
 // Single source of truth for personal details, so nothing is hardcoded twice.
 
-export const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || '';
-
-/** Prefix a /public asset with the GitHub Pages basePath. */
-export const asset = (path) => `${BASE_PATH}${path}`;
+/** Prefix a /public asset path. For username.github.io the basePath is empty. */
+export const asset = (path) => path;
 
 export const SITE = {
   name: 'Jagdish Solanki',
@@ -17,7 +15,7 @@ export const SITE = {
   // TODO(jagdish): swap in your real LinkedIn vanity URL if it differs.
   linkedin: 'https://www.linkedin.com/in/solankijd007',
   resume: '/Jagdish-Solanki-CV.pdf',
-  url: 'https://solankijd007.github.io/solankijd007',
+  url: 'https://solankijd007.github.io',
   // NOTE(jagdish): the CV lists AeonX as "Sep 2024 – Dec 2025" (ended) while its
   // summary says "currently team lead". The site follows the end date. If you are
   // still there, switch the wording here, in Hero's FACTS, in About's second

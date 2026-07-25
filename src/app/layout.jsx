@@ -67,9 +67,7 @@ export const metadata = {
     images: ['/og.jpg'],
   },
   icons: {
-    // Needs the basePath spelled out: Next resolves openGraph/twitter images
-    // against metadataBase, but emits `icons` paths verbatim, which 404s on
-    // GitHub Pages where the site is served from /solankijd007/.
+    // Icons paths are emitted verbatim by Next — use asset() for consistency.
     icon: asset('/favicon.svg'),
   },
   robots: {
