@@ -1,191 +1,173 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import gsap from 'gsap';
+import { useState, useEffect } from 'react';
+import { SITE, asset } from '../lib/site';
 
 const NAV_LINKS = [
-  { name: 'Home', href: '#' },
   { name: 'About', href: '#about' },
-  { name: 'Projects', href: '#projects' },
+  { name: 'Experience', href: '#experience' },
+  { name: 'Work', href: '#work' },
   { name: 'Contact', href: '#contact' },
 ];
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  
-  const navRef = useRef(null);
-  const linksRef = useRef([]);
-  const mobileMenuRef = useRef(null);
-  const mobileLinksRef = useRef([]);
-  const glowRef = useRef(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // Scroll Event Listener
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+    let frame = 0;
+    const onScroll = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        setIsScrolled(window.scrollY > 40);
+      });
     };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      if (frame) cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', onScroll);
+    };
   }, []);
 
-  // Initial Load Animation
+  // Lock body scroll while the fullscreen menu is open.
   useEffect(() => {
-    const tl = gsap.timeline();
-    
-    // Animate Navbar dropping down
-    tl.fromTo(navRef.current, 
-      { y: -100, opacity: 0 }, 
-      { y: 0, opacity: 1, duration: 1, ease: 'power3.out', delay: 0.2 }
-    );
-    
-    // Stagger in the links
-    if (linksRef.current.length > 0) {
-      tl.fromTo(linksRef.current,
-        { y: -20, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.8, stagger: 0.1, ease: 'power3.out' },
-        "-=0.6"
-      );
-    }
-  }, []);
+    document.body.style.overflow = isMenuOpen ? 'hidden' : '';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMenuOpen]);
 
-  // Mouse Glow Interaction
-  const handleMouseMove = (e) => {
-    if (!glowRef.current || !navRef.current) return;
-    const rect = navRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    
-    gsap.to(glowRef.current, {
-      x,
-      y,
-      duration: 0.4,
-      ease: 'power2.out'
-    });
-  };
-
-  // Mobile Menu Animation Toggle
+  // Escape closes the menu.
   useEffect(() => {
-    if (isMobileMenuOpen) {
-      gsap.to(mobileMenuRef.current, {
-        clipPath: 'circle(150% at 90% 10%)',
-        duration: 0.8,
-        ease: 'power3.inOut'
-      });
-      gsap.fromTo(mobileLinksRef.current,
-        { y: 50, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.6, stagger: 0.1, ease: 'power3.out', delay: 0.3 }
-      );
-    } else {
-      gsap.to(mobileMenuRef.current, {
-        clipPath: 'circle(0% at 90% 10%)',
-        duration: 0.6,
-        ease: 'power3.inOut'
-      });
-    }
-  }, [isMobileMenuOpen]);
+    if (!isMenuOpen) return;
+    const onKey = (e) => e.key === 'Escape' && setIsMenuOpen(false);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isMenuOpen]);
 
   return (
     <>
-      <nav 
-        ref={navRef}
-        onMouseMove={handleMouseMove}
-        className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 overflow-hidden ${
-          isScrolled 
-            ? 'bg-black/40 backdrop-blur-md border-b border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.5)] py-4' 
-            : 'bg-transparent py-6'
+      <header
+        className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
+          isScrolled
+            ? 'border-b border-line bg-ink/70 py-3 backdrop-blur-xl'
+            : 'border-b border-transparent py-5'
         }`}
       >
-        {/* Subtle Background Glow Mask */}
-        <div 
-          ref={glowRef}
-          className="pointer-events-none absolute w-75 h-75 bg-white/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 mix-blend-screen opacity-0 md:opacity-100 transition-opacity duration-300"
-        />
-
-        <div className="max-w-7xl mx-auto px-6 flex justify-between items-center relative z-10">
-          
-          {/* Logo */}
-          <div className="flex items-center gap-2 cursor-pointer group">
-            {/* Minimalist Spider/Web-inspired SVG Logo */}
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-white transition-transform duration-500 group-hover:rotate-45 group-hover:scale-110">
-              <path d="M12 2L12 22M2 12L22 12M5 5L19 19M5 19L19 5" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
-              <circle cx="12" cy="12" r="6" stroke="currentColor" strokeWidth="1" strokeDasharray="2 2" />
-            </svg>
-            <span className="text-white font-bold tracking-widest uppercase text-sm ml-2 opacity-90 group-hover:opacity-100 transition-opacity">
-              Spider
+        <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 md:px-10 lg:px-14">
+          <a
+            href="#top"
+            className="group flex items-center gap-3"
+            aria-label={`${SITE.name} — back to top`}
+          >
+            <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/15 text-[13px] font-bold tracking-tight text-white transition-colors duration-300 group-hover:border-accent group-hover:text-accent">
+              JS
             </span>
-          </div>
+            <span className="hidden text-sm font-medium tracking-wide text-white/90 sm:block">
+              {SITE.name}
+            </span>
+          </a>
 
-          {/* Desktop Links */}
-          <div className="hidden md:flex items-center space-x-10">
-            {NAV_LINKS.map((link, index) => (
-              <a 
-                key={link.name} 
+          <div className="hidden items-center gap-9 md:flex">
+            {NAV_LINKS.map((link) => (
+              <a
+                key={link.name}
                 href={link.href}
-                ref={el => linksRef.current[index] = el}
-                className="relative text-gray-400 hover:text-white text-sm font-medium tracking-wide transition-colors duration-300 group"
+                className="group relative text-sm font-medium text-white/55 transition-colors duration-300 hover:text-white"
               >
                 {link.name}
-                {/* Center-out underline animation */}
-                <span className="absolute -bottom-1 left-1/2 w-0 h-px bg-white transition-all duration-300 group-hover:w-full group-hover:left-0"></span>
+                <span className="absolute -bottom-1.5 left-1/2 h-px w-0 bg-accent transition-all duration-300 group-hover:left-0 group-hover:w-full" />
               </a>
             ))}
           </div>
 
-          {/* CTA Button */}
           <div className="hidden md:block">
-            <button 
-              ref={el => linksRef.current[NAV_LINKS.length] = el} // animate with the links
-              className="relative px-6 py-2.5 rounded-full overflow-hidden group bg-transparent border border-white/20 text-white text-sm font-medium tracking-wider hover:border-white/60 transition-colors duration-300"
+            <a
+              href={asset(SITE.resume)}
+              download
+              className="inline-flex items-center gap-2 rounded-full border border-white/20 px-5 py-2.5 text-sm font-medium text-white transition-colors duration-300 hover:border-accent hover:text-accent"
             >
-              <span className="relative z-10 group-hover:text-black transition-colors duration-300">Let&apos;s Talk</span>
-              {/* Button Inner Fill Effect */}
-              <div className="absolute inset-0 h-full w-full bg-white scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-500 ease-[cubic-bezier(0.19,1,0.22,1)]" />
-            </button>
+              Résumé
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+            </a>
           </div>
 
-          {/* Mobile Hamburger Toggle */}
-          <button 
-            className="md:hidden text-white p-2 z-50 relative"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          <button
+            type="button"
+            className="relative z-50 -mr-2 p-2 text-white md:hidden"
+            onClick={() => setIsMenuOpen((open) => !open)}
+            aria-expanded={isMenuOpen}
+            aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
           >
-            <div className="w-6 h-5 flex flex-col justify-between">
-              <span className={`w-full h-px bg-white transition-transform duration-300 ${isMobileMenuOpen ? 'rotate-45 translate-y-2.5' : ''}`} />
-              <span className={`w-full h-px bg-white transition-opacity duration-300 ${isMobileMenuOpen ? 'opacity-0' : ''}`} />
-              <span className={`w-full h-px bg-white transition-transform duration-300 ${isMobileMenuOpen ? '-rotate-45 -translate-y-2.5' : ''}`} />
-            </div>
+            <span className="flex h-5 w-6 flex-col justify-between">
+              <span
+                className={`h-px w-full bg-white transition-transform duration-300 ${
+                  isMenuOpen ? 'translate-y-2.5 rotate-45' : ''
+                }`}
+              />
+              <span
+                className={`h-px w-full bg-white transition-opacity duration-300 ${
+                  isMenuOpen ? 'opacity-0' : ''
+                }`}
+              />
+              <span
+                className={`h-px w-full bg-white transition-transform duration-300 ${
+                  isMenuOpen ? '-translate-y-2.5 -rotate-45' : ''
+                }`}
+              />
+            </span>
           </button>
-        </div>
-      </nav>
+        </nav>
+      </header>
 
-      {/* Mobile Fullscreen Menu */}
-      <div 
-        ref={mobileMenuRef}
-        className="fixed inset-0 bg-black/95 backdrop-blur-xl z-40 flex flex-col justify-center items-center"
-        style={{ clipPath: 'circle(0% at 90% 10%)' }}
+      {/* Mobile menu — a plain CSS clip-path transition, no animation library. */}
+      <div
+        id="mobile-menu"
+        className="fixed inset-0 z-40 flex flex-col items-center justify-center bg-ink/97 backdrop-blur-xl transition-[clip-path] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] md:hidden"
+        style={{
+          clipPath: isMenuOpen ? 'circle(150% at 92% 4%)' : 'circle(0% at 92% 4%)',
+        }}
+        aria-hidden={!isMenuOpen}
       >
-        <div className="flex flex-col space-y-8 text-center mt-10">
-          {NAV_LINKS.map((link, index) => (
-            <a 
-              key={link.name} 
+        <nav className="flex flex-col items-center gap-8">
+          {NAV_LINKS.map((link) => (
+            <a
+              key={link.name}
               href={link.href}
-              ref={el => mobileLinksRef.current[index] = el}
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="text-3xl font-light text-gray-400 hover:text-white transition-colors tracking-widest relative group"
+              onClick={() => setIsMenuOpen(false)}
+              tabIndex={isMenuOpen ? 0 : -1}
+              className="text-3xl font-light tracking-wide text-white/60 transition-colors duration-300 hover:text-white"
             >
               {link.name}
-              <span className="absolute -bottom-2 left-1/2 w-0 h-px bg-white transition-all duration-300 group-hover:w-1/2 group-hover:left-1/4"></span>
             </a>
           ))}
-          
-          <button 
-            ref={el => mobileLinksRef.current[NAV_LINKS.length] = el}
-            onClick={() => setIsMobileMenuOpen(false)}
-            className="mt-8 px-8 py-3 rounded-full border border-white text-white tracking-widest hover:bg-white hover:text-black transition-all duration-300"
+
+          <a
+            href={asset(SITE.resume)}
+            download
+            tabIndex={isMenuOpen ? 0 : -1}
+            onClick={() => setIsMenuOpen(false)}
+            className="mt-6 rounded-full border border-white/25 px-8 py-3 text-sm tracking-wide text-white transition-colors duration-300 hover:border-accent hover:text-accent"
           >
-            Hire Me
-          </button>
-        </div>
+            Download Résumé
+          </a>
+        </nav>
       </div>
     </>
   );

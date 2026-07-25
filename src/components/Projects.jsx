@@ -1,251 +1,242 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useReveal } from '../lib/useReveal';
 
-import imgSpiderman from '../assets/spiderman/20260407_055437.png';
-import imgMan from '../assets/man/1775519899126.png';
-
-const spidermanImageSrc = typeof imgSpiderman === 'string' ? imgSpiderman : imgSpiderman.src;
-const manImageSrc = typeof imgMan === 'string' ? imgMan : imgMan.src;
-
-gsap.registerPlugin(ScrollTrigger);
-
-const MISSIONS = [
+const PROJECTS = [
   {
     id: '01',
-    name: 'The Nexus Protocol',
-    description: 'Engineered a seamless, real-time communication platform built to handle thousands of concurrent global users.',
-    tech: ['React', 'WebSockets', 'Node.js', 'Tailwind'],
-    image: spidermanImageSrc,
-    link: '#',
-    blend: 'mix-blend-luminosity brightness-75',
+    name: 'LogystiX',
+    domain: 'logystix.cloud',
+    href: 'https://logystix.cloud',
+    status: 'Live',
+    role: 'Team lead · delivered end to end',
+    description:
+      'SaaS logistics platform taken from architecture through production launch — inquiry and quotation flows on multi-tenant, role-based access.',
+    stack: ['Node.js', 'TypeScript', 'React.js', 'MySQL', 'Docker'],
   },
   {
     id: '02',
-    name: 'Operation: Aether',
-    description: 'A high-performance digital storefront optimized for secure, millisecond-latency checkout flows.',
-    tech: ['Next.js', 'PostgreSQL', 'Stripe API', 'GSAP'],
-    image: manImageSrc,
-    link: '#',
-    blend: 'mix-blend-luminosity grayscale',
+    name: 'SupplierX',
+    domain: 'aeonx.supplierx.cloud',
+    href: 'https://aeonx.supplierx.cloud',
+    status: 'In development',
+    role: 'Backend architecture & delivery',
+    description:
+      'Procure-to-Pay SaaS: supplier onboarding with PAN/GST verification, purchase order and approval workflows, and SAP integration on a multi-tenant Node.js backend.',
+    stack: ['Node.js', 'TypeScript', 'React.js', 'MySQL'],
   },
   {
     id: '03',
-    name: 'Project Aegis',
-    description: 'A heavy-duty, fortified internal dashboard managing complex data infrastructures and visual analytics.',
-    tech: ['React', 'Python', 'GraphQL', 'AWS'],
-    image: spidermanImageSrc,
-    link: '#',
-    blend: 'mix-blend-overlay brightness-125 saturate-150',
-  }
+    name: 'Hunter Home CMS',
+    domain: 'hunterhome.co.nz',
+    href: 'https://hunterhome.co.nz',
+    status: 'Live',
+    role: 'Backend & integrations',
+    description:
+      'Admin and content-management backend for a New Zealand retailer, built on the BigCommerce API.',
+    stack: ['Node.js', 'BigCommerce API'],
+  },
+  {
+    id: '04',
+    name: 'DIT Academy',
+    domain: 'academy.ditcloud.in',
+    href: 'https://academy.ditcloud.in',
+    status: 'Live',
+    role: 'Full stack · also taught on it',
+    description:
+      'Training platform for the company internship programme, where I also taught Node.js and Python to interns.',
+    stack: ['Node.js', 'React.js', 'MySQL'],
+  },
 ];
 
-const ProjectCard = ({ project }) => {
-  const cardRef = useRef(null);
-  const glowRef = useRef(null);
-  const imageRef = useRef(null);
-  
-  const handleMouseMove = (e) => {
-    if (!cardRef.current) return;
-    
-    const rect = cardRef.current.getBoundingClientRect();
-    
-    // Calculate mouse position strictly bounded within the card [-1, 1]
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    
-    // Apply 3D tilt mapped against mouse offset (multiplied by degrees of max tilt)
-    gsap.to(cardRef.current, {
-      rotateY: x * 15, // tilt left/right up to 7.5 deg
-      rotateX: -y * 15, // tilt up/down up to 7.5 deg
-      transformPerspective: 1000,
-      ease: 'power2.out',
-      duration: 0.4
-    });
-    
-    // Move the glow to follow the cursor exactly
-    gsap.to(glowRef.current, {
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
-      opacity: 1,
-      duration: 0.2
-    });
-    
-    // Inverse parallax on the image inside
-    gsap.to(imageRef.current, {
-      x: -x * 20,
-      y: -y * 20,
-      scale: 1.1,
-      ease: 'power2.out',
-      duration: 0.4
-    });
-  };
-
-  const handleMouseLeave = () => {
-    // Snap back everything cleanly
-    gsap.to(cardRef.current, {
-      rotateY: 0,
-      rotateX: 0,
-      ease: 'power3.out',
-      duration: 0.6
-    });
-    
-    gsap.to(glowRef.current, {
-      opacity: 0,
-      duration: 0.4
-    });
-    
-    gsap.to(imageRef.current, {
-      x: 0,
-      y: 0,
-      scale: 1.0,
-      ease: 'power3.out',
-      duration: 0.6
-    });
-  };
-
-  return (
-    <div 
-      className="project-card relative w-full h-112.5 rounded-xl overflow-hidden cursor-pointer group bg-black border border-white/10"
-      style={{ transformStyle: 'preserve-3d' }}
-      ref={cardRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-    >
-      {/* Background Image Layer */}
-      <div className="absolute inset-0 z-0 overflow-hidden bg-zinc-900">
-        <img 
-          ref={imageRef}
-          src={project.image} 
-          alt={project.name} 
-          className={`absolute inset-0 w-full h-[120%] -top-[10%] object-cover object-center ${project.blend} transition-all duration-[1.5s]`}
-        />
-        <div className="absolute inset-0 bg-linear-to-t from-black via-black/80 to-transparent z-10" />
-      </div>
-
-      {/* Dynamic Hover Glow Layer Tracker */}
-      <div 
-        ref={glowRef}
-        className="absolute w-64 h-64 bg-red-500/10 rounded-full blur-[80px] pointer-events-none z-10 -translate-x-1/2 -translate-y-1/2 opacity-0 mix-blend-screen"
-      />
-      
-      {/* Laser Border overlay on Hover */}
-      <div className="absolute inset-0 border border-red-500/0 group-hover:border-red-500/40 rounded-xl transition-colors duration-500 z-20 pointer-events-none" />
-
-      {/* Foreground Content */}
-      <div className="absolute inset-0 z-30 p-8 flex flex-col justify-end pointer-events-none" style={{ transform: 'translateZ(30px)' }}> {/* Push text outward on Z axis */}
-        
-        {/* Dossier Code */}
-        <div className="text-red-500/80 font-mono text-xs tracking-[0.3em] mb-2 font-bold uppercase transition-transform duration-500 transform translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100">
-          File_ID // {project.id}
-        </div>
-        
-        <h3 className="text-3xl font-bold tracking-tight text-white mb-3 leading-none drop-shadow-xl font-sans">
-          {project.name}
-        </h3>
-        
-        <p className="text-gray-400 text-sm md:text-base leading-relaxed mb-6 font-light max-w-[90%]">
-          {project.description}
-        </p>
-        
-        <div className="flex flex-wrap gap-2 mb-6 pointer-events-auto">
-          {project.tech.map((tool) => (
-            <span key={tool} className="text-[10px] uppercase tracking-widest px-3 py-1.5 border border-white/20 rounded-full text-gray-300 font-medium">
-              {tool}
-            </span>
-          ))}
-        </div>
-        
-        <div className="mt-auto pointer-events-auto w-fit">
-          <a href={project.link} className="flex items-center space-x-2 text-sm uppercase tracking-[0.2em] font-medium text-white group/link relative">
-            <span className="relative overflow-hidden block">
-              <span className="block group-hover/link:-translate-y-full transition-transform duration-300">Access Record</span>
-              <span className="block absolute inset-0 translate-y-full group-hover/link:translate-y-0 transition-transform duration-300 text-red-400">Access Record</span>
-            </span>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transform group-hover/link:translate-x-1 group-hover/link:-translate-y-1 transition-transform duration-300 text-red-500">
-              <line x1="5" y1="19" x2="19" y2="5"></line>
-              <polyline points="10 5 19 5 19 14"></polyline>
-            </svg>
-          </a>
-        </div>
-      </div>
-    </div>
-  );
-};
-
+const ALSO_DELIVERED = [
+  'Memory Kite',
+  'PHC',
+  'Afford A Boost',
+  'Arabic Book A Month (custom Shopify app)',
+];
 
 export default function Projects() {
-  const sectionRef = useRef(null);
-  const headerRef = useRef(null);
-  
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "top 75%",
-          toggleActions: "play none none reverse"
-        }
-      });
-      
-      // Header Animation
-      tl.fromTo(headerRef.current.children,
-        { opacity: 0, y: 50 },
-        { opacity: 1, y: 0, duration: 1, stagger: 0.2, ease: "power3.out" }
-      );
-      
-      // Select cards via class
-      const cards = sectionRef.current.querySelectorAll('.project-card');
-      
-      tl.fromTo(cards,
-        { opacity: 0, y: 100, scale: 0.95 },
-        { opacity: 1, y: 0, scale: 1, duration: 1.2, stagger: 0.15, ease: "power3.out" },
-        "-=0.6"
-      );
-      
-    }, sectionRef);
+  const sectionRef = useReveal();
+  const gridRef = useRef(null);
 
-    return () => ctx.revert();
+  // One delegated pointer listener for the whole grid drives the hover glow on
+  // whichever card is under the cursor — cheaper than a handler per card, and
+  // it only does work while the pointer is actually inside the grid.
+  useEffect(() => {
+    const grid = gridRef.current;
+    if (!grid) return;
+    if (!window.matchMedia('(pointer: fine)').matches) return;
+
+    let frame = 0;
+
+    const onPointerMove = (event) => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        const card = event.target.closest?.('[data-card]');
+        if (!card) return;
+        const rect = card.getBoundingClientRect();
+        card.style.setProperty('--gx', `${event.clientX - rect.left}px`);
+        card.style.setProperty('--gy', `${event.clientY - rect.top}px`);
+      });
+    };
+
+    grid.addEventListener('pointermove', onPointerMove, { passive: true });
+    return () => {
+      if (frame) cancelAnimationFrame(frame);
+      grid.removeEventListener('pointermove', onPointerMove);
+    };
   }, []);
 
   return (
-    <section 
-      id="projects" 
+    <section
+      id="work"
       ref={sectionRef}
-      className="w-full min-h-screen bg-[#030303] py-32 px-6 md:px-12 lg:px-24 flex flex-col justify-center relative overflow-hidden"
+      className="relative w-full overflow-hidden bg-ink-2 px-6 py-24 md:px-10 md:py-32 lg:px-14"
     >
-      <div className="max-w-360 mx-auto w-full relative z-10">
-        
-        {/* Header Block */}
-        <div ref={headerRef} className="mb-16 md:mb-24 flex flex-col md:flex-row md:items-end justify-between border-b border-white/10 pb-8">
-          <div className="max-w-2xl">
-            <h2 className="text-4xl md:text-5xl lg:text-[4.5rem] font-bold tracking-tighter text-white font-sans leading-none drop-shadow-lg mb-4">
-              Declassified <span className="font-serif italic font-light opacity-80 text-transparent bg-clip-text bg-linear-to-r from-red-500 to-white pr-2">Missions</span>
+      <div className="pointer-events-none absolute inset-0 bg-grid opacity-2.5" />
+
+      <div className="relative mx-auto max-w-7xl">
+        <div className="mb-16 flex flex-col justify-between gap-6 border-b border-line pb-10 md:mb-20 md:flex-row md:items-end">
+          <div>
+            <p
+              data-reveal
+              className="mb-6 flex items-center gap-3 text-xs font-medium uppercase tracking-[0.28em] text-accent"
+            >
+              <span className="h-px w-8 bg-accent/60" />
+              Selected work
+            </p>
+            <h2
+              data-reveal
+              style={{ '--d': '80ms' }}
+              className="max-w-2xl text-balance text-4xl font-bold leading-[1.05] tracking-tight text-white md:text-5xl lg:text-6xl"
+            >
+              Products in{' '}
+              <span className="font-serif italic text-accent-soft">
+                production
+              </span>
+              .
             </h2>
           </div>
-          <p className="text-gray-400 font-light tracking-wide text-base md:text-lg max-w-sm mt-6 md:mt-0 leading-relaxed md:text-right">
-            Selected operations engineered for supreme performance and scale.
+          <p
+            data-reveal
+            style={{ '--d': '160ms' }}
+            className="max-w-sm text-[15px] font-light leading-relaxed text-white/50 md:text-right"
+          >
+            Platforms I designed, built and released — most of them still serving
+            customers today.
           </p>
         </div>
-        
-        {/* Grid Container */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 gap-y-12 place-items-center">
-          {VISIONS.map(project => (
-            <ProjectCard key={project.id} project={project} />
+
+        <div ref={gridRef} className="grid gap-6 md:grid-cols-2">
+          {PROJECTS.map((project, index) => (
+            <article
+              key={project.id}
+              data-card
+              data-reveal
+              style={{ '--d': `${index * 90}ms` }}
+              className="group relative flex flex-col overflow-hidden rounded-2xl border border-line bg-ink-3/60 p-8 transition-colors duration-500 hover:border-accent/35 md:p-10"
+            >
+              {/* Cursor-following glow */}
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                style={{
+                  background:
+                    'radial-gradient(340px circle at var(--gx, 50%) var(--gy, 50%), rgba(45,212,191,0.09), transparent 70%)',
+                }}
+              />
+
+              <div className="relative flex items-start justify-between gap-6">
+                <div>
+                  <p className="font-mono text-[11px] tracking-[0.3em] text-white/30">
+                    {project.id}
+                  </p>
+                  <h3 className="mt-4 text-2xl font-bold tracking-tight text-white md:text-3xl">
+                    {project.name}
+                  </h3>
+                  <p className="mt-2 text-sm text-white/45">{project.role}</p>
+                </div>
+
+                <span
+                  className={`shrink-0 rounded-full border px-3 py-1 text-[11px] font-medium uppercase tracking-wider ${
+                    project.status === 'Live'
+                      ? 'border-accent/30 bg-accent/10 text-accent-soft'
+                      : 'border-white/15 bg-white/5 text-white/50'
+                  }`}
+                >
+                  {project.status}
+                </span>
+              </div>
+
+              <p className="relative mt-6 flex-1 text-[15px] font-light leading-relaxed text-white/60">
+                {project.description}
+              </p>
+
+              <div className="relative mt-8 flex flex-wrap gap-2">
+                {project.stack.map((tech) => (
+                  <span
+                    key={tech}
+                    className="rounded-md border border-line bg-white/3 px-2.5 py-1 text-[13px] text-white/55"
+                  >
+                    {tech}
+                  </span>
+                ))}
+              </div>
+
+              <div className="relative mt-8 border-t border-line pt-6">
+                <a
+                  href={project.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-sm font-medium text-white/70 transition-colors duration-300 hover:text-accent"
+                >
+                  {project.domain}
+                  <svg
+                    width="13"
+                    height="13"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                    aria-hidden="true"
+                  >
+                    <line x1="7" y1="17" x2="17" y2="7" />
+                    <polyline points="7 7 17 7 17 17" />
+                  </svg>
+                </a>
+              </div>
+            </article>
           ))}
         </div>
-        
+
+        <div
+          data-reveal
+          style={{ '--d': '120ms' }}
+          className="mt-14 flex flex-col gap-4 border-t border-line pt-10 sm:flex-row sm:items-center sm:gap-8"
+        >
+          <p className="shrink-0 text-xs font-medium uppercase tracking-[0.28em] text-white/35">
+            Also delivered
+          </p>
+          <ul className="flex flex-wrap gap-x-3 gap-y-2">
+            {ALSO_DELIVERED.map((name, index) => (
+              <li key={name} className="text-sm text-white/55">
+                {name}
+                {index < ALSO_DELIVERED.length - 1 && (
+                  <span className="ml-3 text-white/15" aria-hidden="true">
+                    /
+                  </span>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
-      
-      {/* Background Ambience line-grid */}
-      <div className="absolute inset-0 pointer-events-none opacity-[0.03] z-0" 
-           style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '100px 100px' }} 
-      />
     </section>
   );
 }
-
-// Ensure the mapping variable aligns exactly with the constant 
-const VISIONS = MISSIONS;

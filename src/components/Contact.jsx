@@ -1,146 +1,242 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useState } from 'react';
+import { SITE, asset } from '../lib/site';
+import { useReveal } from '../lib/useReveal';
 
-gsap.registerPlugin(ScrollTrigger);
+const CHANNELS = [
+  { label: 'Email', value: SITE.email, href: `mailto:${SITE.email}` },
+  { label: 'Phone', value: SITE.phone, href: `tel:${SITE.phoneHref}` },
+  { label: 'GitHub', value: 'github.com/solankijd007', href: SITE.github },
+  { label: 'LinkedIn', value: 'in/solankijd007', href: SITE.linkedin },
+];
 
 export default function Contact() {
-  const sectionRef = useRef(null);
-  const formRef = useRef(null);
+  const sectionRef = useReveal();
+  const [sent, setSent] = useState(false);
 
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "top 75%",
-          toggleActions: "play none none reverse"
-        }
-      });
-      
-      // Select all animatable elements
-      const elements = sectionRef.current.querySelectorAll('.animate-element');
-      
-      // Stagger them fading directly upward
-      tl.fromTo(elements,
-        { opacity: 0, y: 50 },
-        { opacity: 1, y: 0, duration: 1, stagger: 0.15, ease: "power3.out" }
-      );
-      
-    }, sectionRef);
+  // The site is a static export with no backend, so the form composes a mail
+  // draft in the visitor's own client instead of pretending to POST somewhere.
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const name = (data.get('name') || '').toString().trim();
+    const email = (data.get('email') || '').toString().trim();
+    const message = (data.get('message') || '').toString().trim();
 
-    return () => ctx.revert();
-  }, []);
+    const subject = `Portfolio enquiry from ${name}`;
+    const body = `${message}\n\n—\n${name}\n${email}`;
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Insert actual send behavior here later
-    alert("Connection encrypted. Message transmitted!");
+    window.location.href = `mailto:${SITE.email}?subject=${encodeURIComponent(
+      subject
+    )}&body=${encodeURIComponent(body)}`;
+
+    setSent(true);
   };
 
+  const fieldClass =
+    'w-full rounded-xl border border-line bg-white/3 px-4 py-3.5 text-[15px] text-white outline-none transition-colors duration-300 placeholder:text-white/30 focus:border-accent/50 focus:bg-white/6';
+
   return (
-    <section 
-      id="contact" 
+    <section
+      id="contact"
       ref={sectionRef}
-      className="relative w-full min-h-screen bg-[#030303] flex items-center justify-center py-24 px-6 md:px-12 overflow-hidden"
+      className="relative w-full overflow-hidden bg-ink px-6 py-24 md:px-10 md:py-32 lg:px-14"
     >
-      {/* Intense Background Glow */}
-      <div className="absolute inset-0 pointer-events-none flex items-center justify-center z-0">
-        <div className="w-200 h-125 bg-red-600/10 rounded-full blur-[150px] mix-blend-screen opacity-50" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 flex justify-center">
+        <div className="h-64 w-240 max-w-full rounded-full bg-accent/7 blur-[140px]" />
       </div>
 
-      <div className="max-w-2xl w-full relative z-10 flex flex-col items-center text-center">
-        
-        {/* Header Block */}
-        <div className="mb-12 animate-element">
-          <p className="text-red-500 font-mono text-sm tracking-[0.3em] uppercase font-bold mb-4">
-            [ Encrypted Channel ]
-          </p>
-          <h2 className="text-5xl md:text-7xl font-bold tracking-tighter text-white font-sans leading-none mb-6 drop-shadow-xl">
-            Let&apos;s <span className="text-transparent bg-clip-text bg-linear-to-r from-red-500 to-white font-serif italic pr-2">Connect</span>
-          </h2>
-          <p className="text-gray-400 font-light text-lg tracking-wide leading-relaxed max-w-xl mx-auto">
-            Whether you have a groundbreaking tech vision, a complex application to build, or just want to talk shop—my inbox is always open. Let’s collaborate and architect the digital tools of tomorrow.
-          </p>
+      <div className="relative mx-auto max-w-7xl">
+        <div className="grid gap-16 lg:grid-cols-2 lg:gap-24">
+          {/* Pitch + channels */}
+          <div>
+            <p
+              data-reveal
+              className="mb-6 flex items-center gap-3 text-xs font-medium uppercase tracking-[0.28em] text-accent"
+            >
+              <span className="h-px w-8 bg-accent/60" />
+              Contact
+            </p>
+
+            <h2
+              data-reveal
+              style={{ '--d': '80ms' }}
+              className="max-w-xl text-balance text-4xl font-bold leading-[1.05] tracking-tight text-white md:text-5xl lg:text-6xl"
+            >
+              Let&apos;s build something{' '}
+              <span className="font-serif italic text-accent-soft">
+                worth shipping
+              </span>
+              .
+            </h2>
+
+            <p
+              data-reveal
+              style={{ '--d': '160ms' }}
+              className="mt-7 max-w-lg text-lg font-light leading-relaxed text-white/65"
+            >
+              Open to full stack roles and freelance work — Node.js, TypeScript and
+              React. If you have a platform to build or a team that needs someone who
+              can own delivery through release, I&apos;d like to hear about it.
+            </p>
+
+            <dl
+              data-reveal
+              style={{ '--d': '240ms' }}
+              className="mt-12 grid gap-x-8 gap-y-7 border-t border-line pt-10 sm:grid-cols-2"
+            >
+              {CHANNELS.map((channel) => (
+                <div key={channel.label}>
+                  <dt className="text-xs font-medium uppercase tracking-[0.2em] text-white/35">
+                    {channel.label}
+                  </dt>
+                  <dd className="mt-2">
+                    <a
+                      href={channel.href}
+                      target={channel.href.startsWith('http') ? '_blank' : undefined}
+                      rel={
+                        channel.href.startsWith('http') ? 'noopener noreferrer' : undefined
+                      }
+                      className="text-[15px] text-white/75 transition-colors duration-300 hover:text-accent"
+                    >
+                      {channel.value}
+                    </a>
+                  </dd>
+                </div>
+              ))}
+
+              <div>
+                <dt className="text-xs font-medium uppercase tracking-[0.2em] text-white/35">
+                  Based in
+                </dt>
+                <dd className="mt-2 text-[15px] text-white/75">{SITE.location}</dd>
+              </div>
+
+              <div>
+                <dt className="text-xs font-medium uppercase tracking-[0.2em] text-white/35">
+                  Résumé
+                </dt>
+                <dd className="mt-2">
+                  <a
+                    href={asset(SITE.resume)}
+                    download
+                    className="text-[15px] text-white/75 transition-colors duration-300 hover:text-accent"
+                  >
+                    Download PDF
+                  </a>
+                </dd>
+              </div>
+            </dl>
+          </div>
+
+          {/* Form */}
+          <div data-reveal style={{ '--d': '160ms' }} className="lg:pt-16">
+            <form
+              onSubmit={handleSubmit}
+              className="rounded-2xl border border-line bg-ink-2/70 p-6 md:p-9"
+            >
+              <div className="grid gap-5 sm:grid-cols-2">
+                <div>
+                  <label
+                    htmlFor="name"
+                    className="mb-2 block text-xs font-medium uppercase tracking-[0.2em] text-white/40"
+                  >
+                    Name
+                  </label>
+                  <input
+                    id="name"
+                    name="name"
+                    type="text"
+                    required
+                    autoComplete="name"
+                    placeholder="Your name"
+                    className={fieldClass}
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="email"
+                    className="mb-2 block text-xs font-medium uppercase tracking-[0.2em] text-white/40"
+                  >
+                    Email
+                  </label>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    required
+                    autoComplete="email"
+                    placeholder="you@company.com"
+                    className={fieldClass}
+                  />
+                </div>
+              </div>
+
+              <div className="mt-5">
+                <label
+                  htmlFor="message"
+                  className="mb-2 block text-xs font-medium uppercase tracking-[0.2em] text-white/40"
+                >
+                  Message
+                </label>
+                <textarea
+                  id="message"
+                  name="message"
+                  required
+                  rows={6}
+                  placeholder="What are you building?"
+                  className={`${fieldClass} resize-none`}
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="group mt-7 inline-flex w-full items-center justify-center gap-2.5 rounded-full bg-white px-8 py-3.5 text-sm font-medium tracking-wide text-ink transition-colors duration-300 hover:bg-accent-soft sm:w-auto"
+              >
+                Send message
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="transition-transform duration-300 group-hover:translate-x-0.5"
+                  aria-hidden="true"
+                >
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                  <polyline points="12 5 19 12 12 19" />
+                </svg>
+              </button>
+
+              <p
+                aria-live="polite"
+                className="mt-4 text-[13px] leading-relaxed text-white/40"
+              >
+                {sent
+                  ? 'Your mail app should be open with the message ready — hit send there.'
+                  : `This opens a draft in your mail app addressed to ${SITE.email}.`}
+              </p>
+            </form>
+          </div>
         </div>
 
-        {/* Form Block */}
-        <form ref={formRef} onSubmit={handleSubmit} className="w-full flex flex-col space-y-6">
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Name Input */}
-            <div className="relative group animate-element">
-              <input 
-                type="text" 
-                id="name"
-                required
-                className="peer w-full bg-white/5 border border-white/5 text-white text-base rounded-xl px-5 py-4 outline-none transition-all duration-300 focus:bg-white/10 focus:border-red-500/50 focus:shadow-[0_0_20px_rgba(239,68,68,0.2)] placeholder-transparent"
-                placeholder="Name"
-              />
-              <label htmlFor="name" className="absolute left-5 top-4 text-gray-500 text-base pointer-events-none transition-all duration-300 peer-focus:-top-3 peer-focus:text-xs peer-focus:text-red-400 peer-valid:-top-3 peer-valid:text-xs peer-valid:text-gray-400 bg-[#030303] px-1 rounded">
-                Name
-              </label>
-            </div>
-            
-            {/* Email Input */}
-            <div className="relative group animate-element">
-              <input 
-                type="email" 
-                id="email"
-                required
-                className="peer w-full bg-white/5 border border-white/5 text-white text-base rounded-xl px-5 py-4 outline-none transition-all duration-300 focus:bg-white/10 focus:border-red-500/50 focus:shadow-[0_0_20px_rgba(239,68,68,0.2)] placeholder-transparent"
-                placeholder="Email"
-              />
-              <label htmlFor="email" className="absolute left-5 top-4 text-gray-500 text-base pointer-events-none transition-all duration-300 peer-focus:-top-3 peer-focus:text-xs peer-focus:text-red-400 peer-valid:-top-3 peer-valid:text-xs peer-valid:text-gray-400 bg-[#030303] px-1 rounded">
-                Email
-              </label>
-            </div>
-          </div>
-
-          {/* Message Textarea */}
-          <div className="relative group animate-element">
-            <textarea 
-              id="message"
-              required
-              rows="5"
-              className="peer w-full bg-white/5 border border-white/5 text-white text-base rounded-xl px-5 py-4 outline-none transition-all duration-300 focus:bg-white/10 focus:border-red-500/50 focus:shadow-[0_0_20px_rgba(239,68,68,0.2)] placeholder-transparent resize-none"
-              placeholder="Message"
-            ></textarea>
-            <label htmlFor="message" className="absolute left-5 top-4 text-gray-500 text-base pointer-events-none transition-all duration-300 peer-focus:-top-3 peer-focus:text-xs peer-focus:text-red-400 peer-valid:-top-3 peer-valid:text-xs peer-valid:text-gray-400 bg-[#030303] px-1 rounded">
-              Message
-            </label>
-          </div>
-
-          {/* Submit Button */}
-          <div className="animate-element pt-4 flex justify-center">
-            <button 
-              type="submit" 
-              className="relative group overflow-hidden rounded-full w-full md:w-auto px-12 py-4 border border-red-500/30 bg-black text-white text-sm uppercase tracking-[0.2em] font-medium transition-all duration-500 hover:scale-[1.02] hover:border-red-500 shadow-[0_0_0_rgba(239,68,68,0)] hover:shadow-[0_0_30px_rgba(239,68,68,0.3)]"
-            >
-              {/* Animated Inner Sweep */}
-              <span className="absolute inset-0 bg-linear-to-r from-red-600/0 via-red-600/20 to-red-600/0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
-              
-              <span className="relative z-10 flex items-center justify-center space-x-3">
-                <span>Transmit Message</span>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transform group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-300 text-red-500">
-                  <line x1="22" y1="2" x2="11" y2="13"></line>
-                  <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                </svg>
-              </span>
-            </button>
-          </div>
-          
-        </form>
+        <footer className="mt-24 flex flex-col items-center justify-between gap-4 border-t border-line pt-8 text-xs text-white/35 sm:flex-row">
+          {/* Prerendered at build time, re-evaluated on the client — the year can
+              legitimately differ across a New Year boundary. */}
+          <p suppressHydrationWarning>
+            © {new Date().getFullYear()} {SITE.name}. Built with Next.js &amp; Tailwind
+            CSS.
+          </p>
+          <a href="#top" className="transition-colors duration-300 hover:text-white">
+            Back to top ↑
+          </a>
+        </footer>
       </div>
-
-      {/* Tailwind config hack config for custom shimmer keyframe. A real project injects this in index.css or tailwind.config.js - we can shim it inline cleanly here */}
-      <style dangerouslySetInnerHTML={{__html: `
-        @keyframes shimmer {
-          100% { transform: translateX(100%); }
-        }
-      `}} />
     </section>
   );
 }

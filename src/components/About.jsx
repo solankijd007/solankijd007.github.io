@@ -1,189 +1,175 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import portrait from '../assets/portrait.webp';
+import { useReveal } from '../lib/useReveal';
 
-// Reuse our hero assets for the dual-identity mask effect prototype
-import imgSpiderman from '../assets/spiderman/20260407_055437.png';
-import imgMan from '../assets/man/1775519899126.png';
+const portraitSrc = typeof portrait === 'string' ? portrait : portrait.src;
 
-const spidermanImageSrc = typeof imgSpiderman === 'string' ? imgSpiderman : imgSpiderman.src;
-const manImageSrc = typeof imgMan === 'string' ? imgMan : imgMan.src;
+const STATS = [
+  { value: '4', suffix: ' yrs', label: 'Building for production' },
+  { value: '12', suffix: '+', label: 'Client products shipped' },
+  { value: '4', suffix: '', label: 'Developers led as team lead' },
+];
 
-gsap.registerPlugin(ScrollTrigger);
+const SKILLS = [
+  {
+    group: 'Languages',
+    items: ['TypeScript', 'JavaScript', 'PHP', 'Python', 'Java', 'C', 'C++'],
+  },
+  {
+    group: 'Backend',
+    items: [
+      'Node.js',
+      'Express.js',
+      'Next.js',
+      'REST APIs',
+      'GraphQL',
+      'Socket.IO',
+      'Microservices',
+      'FastAPI',
+    ],
+  },
+  {
+    group: 'Frontend',
+    items: ['React.js', 'Next.js', 'React Native', 'Tailwind CSS', 'Material UI'],
+  },
+  {
+    group: 'Databases',
+    items: ['MySQL', 'MongoDB', 'PostgreSQL', 'Redis'],
+  },
+  {
+    group: 'Cloud & DevOps',
+    items: ['Docker', 'AWS', 'Nginx', 'CI/CD automation', 'Linux'],
+  },
+  {
+    group: 'Integrations',
+    items: ['Shopify API', 'BigCommerce API', 'Payment gateways'],
+  },
+];
 
 export default function About() {
-  const sectionRef = useRef(null);
-  const textContainerRef = useRef(null);
-  const imageContainerRef = useRef(null);
-  const maskRef = useRef(null);
-
-  // 1. ScrollTrigger entrance animation
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      // Create a timeline bound to the scroll position
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "top 75%", // triggers when the top of the section hits 75% of the viewport height
-          toggleActions: "play none none reverse" // play forwards on scroll down, reverse on scroll out
-        }
-      });
-
-      // Select all text lines that have the 'stagger-reveal' class
-      const textElements = textContainerRef.current.querySelectorAll('.stagger-reveal');
-      
-      // Select the image container
-      const imgElement = imageContainerRef.current;
-
-      tl.fromTo(imgElement, 
-        { opacity: 0, x: -50 }, 
-        { opacity: 1, x: 0, duration: 1.2, ease: "power3.out" }
-      )
-      .fromTo(textElements, 
-        { opacity: 0, y: 40 },
-        { opacity: 1, y: 0, duration: 1, stagger: 0.15, ease: "power3.out" },
-        "-=0.8" // start before image is fully in
-      );
-      
-    }, sectionRef);
-
-    return () => ctx.revert(); // clean up ScrollTrigger
-  }, []);
-
-  // 2. Interactive Spotlight Mask
-  const handleMouseMove = (e) => {
-    if (!imageContainerRef.current) return;
-    
-    // Get mouse position relative to the image container
-    const rect = imageContainerRef.current.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-    
-    // Use GSAP to smoothly lerp the mask center
-    gsap.to(maskRef.current, {
-      '--x': `${x}%`,
-      '--y': `${y}%`,
-      duration: 0.4,
-      ease: 'power2.out'
-    });
-  };
-
-  const handleMouseLeave = () => {
-    // Return to default center position smoothly
-    gsap.to(maskRef.current, {
-      '--x': '50%',
-      '--y': '50%',
-      duration: 0.8,
-      ease: 'power3.out'
-    });
-  };
+  const sectionRef = useReveal();
 
   return (
-    <section 
-    id='about'
-      ref={sectionRef} 
-      className="relative w-full min-h-screen bg-black flex items-center justify-center py-24 px-6 md:px-12 lg:px-24 overflow-hidden"
+    <section
+      id="about"
+      ref={sectionRef}
+      className="relative w-full overflow-hidden bg-ink-2 px-6 py-24 md:px-10 md:py-32 lg:px-14"
     >
-      {/* Background Ambience Layer */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-150 h-150 bg-red-900/10 blur-[120px] rounded-full mix-blend-screen" />
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPjxyZWN0IHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMiIvPjwvc3ZnPg==')] opacity-30 mix-blend-overlay" />
-      </div>
+      <div className="pointer-events-none absolute inset-0 bg-grid opacity-2.5" />
 
-      <div className="max-w-360 w-full grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center relative z-10">
-        
-        {/* Left Column: Interactive Portrait */}
-        <div 
-          ref={imageContainerRef}
-          className="relative w-full aspect-4/5 max-w-md mx-auto lg:max-w-none rounded-2xl overflow-hidden cursor-crosshair group shadow-2xl border border-white/5"
-          onMouseMove={handleMouseMove}
-          onMouseLeave={handleMouseLeave}
-          style={{ transform: 'translateZ(0)' }} // Hardware acceleration
-        >
-          {/* Base Layer: Developer Portrait (Moody/Dark) */}
-          <img 
-            src={manImageSrc} 
-            alt="Developer Persona" 
-            className="absolute inset-0 w-full h-full object-cover object-center grayscale opacity-60 mix-blend-luminosity brightness-75 transition-all duration-700 group-hover:scale-105"
-          />
+      <div className="relative mx-auto max-w-7xl">
+        <div className="grid gap-16 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-24">
+          {/* Portrait */}
+          <div data-reveal className="lg:sticky lg:top-28 lg:self-start">
+            {/* Ratio matches the source file so nothing is cropped, and the width
+                is capped — the photo is 410x530, so a wider box would just be
+                upscaling it. */}
+            <div className="relative mx-auto aspect-41/53 w-full max-w-sm overflow-hidden rounded-2xl border border-line lg:max-w-md">
+              {/* Pre-optimized WebP on a static export — next/image would add JS
+                  without optimizing anything. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={portraitSrc}
+                alt="Jagdish Solanki"
+                loading="lazy"
+                decoding="async"
+                className="h-full w-full object-cover object-center grayscale transition-[filter] duration-700 hover:grayscale-0"
+              />
+              <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-ink-2 via-transparent to-transparent" />
+            </div>
 
-          {/* Masked Overlay: Superhero Persona (Vibrant) */}
-          <div 
-            ref={maskRef}
-            className="absolute inset-0 w-full h-full"
-            style={{
-              '--x': '50%',
-              '--y': '50%',
-              // The polygon logic simulates a circular spotlight reveal
-              // For a soft glowing edge, clip-path doesn't support blur inherently, but this acts perfectly as the mask.
-              clipPath: 'circle(15% at var(--x) var(--y))',
-              transition: 'clip-path 0.1s ease-out'
-            }}
-          >
-            <img 
-              src={spidermanImageSrc} 
-              alt="Hidden Superhero Persona" 
-              className="absolute inset-0 w-full h-full object-cover object-center scale-105 group-hover:scale-110 transition-transform duration-[2s] ease-out"
-            />
-            
-            {/* Inner spotlight glow matched inside the mask */}
-            <div className="absolute inset-0 bg-gradient-radial from-transparent via-black/20 to-black/80" />
-          </div>
-
-          {/* Interaction Hint Overlay */}
-          <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-             <div className="w-24 h-24 rounded-full border border-white/20 scale-150 animate-ping absolute" />
-          </div>
-        </div>
-
-        {/* Right Column: Story & Details */}
-        <div ref={textContainerRef} className="flex flex-col justify-center space-y-10">
-          
-          <div className="overflow-hidden">
-            <h2 className="stagger-reveal text-5xl md:text-6xl font-bold tracking-tighter text-white font-sans leading-tight">
-              The Dual <br />
-              <span className="text-transparent bg-clip-text bg-linear-to-r from-red-500 to-purple-500 font-serif italic pr-4">Persona</span>
-            </h2>
-          </div>
-
-          <div className="overflow-hidden">
-            <p className="stagger-reveal text-lg md:text-xl text-gray-400 font-light leading-relaxed max-w-xl">
-              There are two sides to every great digital experience. The relentless logic of the backend, and the striking, emotional pull of the frontend. As a Full-Stack Developer, my superpower lies in bridging that gap—masking complex, high-performance web architecture behind beautiful, fluid, and fiercely creative user interfaces.
-            </p>
-          </div>
-
-          {/* Expertise Highlights */}
-          <div className="overflow-hidden">
-            <div className="stagger-reveal grid grid-cols-2 gap-x-8 gap-y-4 pt-4 border-t border-white/10 max-w-xl">
-              {[
-                "Full-Stack Fluidity", 
-                "Motion & Micro-Interactions", 
-                "System Architecture", 
-                "Pixel-Perfect UIs"
-              ].map((skill, i) => (
-                <div key={i} className="flex items-center space-x-3 group">
-                  <div className="w-1.5 h-1.5 rounded-full bg-white/20 group-hover:bg-red-500 transition-colors duration-300" />
-                  <span className="text-gray-300 text-sm md:text-base font-medium tracking-wide uppercase group-hover:text-white transition-colors duration-300">
-                    {skill}
-                  </span>
+            <div className="mt-8 grid grid-cols-3 gap-4 border-t border-line pt-8">
+              {STATS.map((stat) => (
+                <div key={stat.label}>
+                  <p className="text-3xl font-bold tracking-tight text-white md:text-4xl">
+                    {stat.value}
+                    <span className="text-accent">{stat.suffix}</span>
+                  </p>
+                  <p className="mt-2 text-xs leading-snug text-white/45">{stat.label}</p>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Quote Block */}
-          <div className="overflow-hidden mt-6">
-            <blockquote className="stagger-reveal border-l-2 border-red-500/50 pl-6 py-2">
-              <p className="text-xl md:text-2xl text-gray-200 font-serif italic">
-                “Logic builds the foundation. <br /> Imagination breaks the boundaries.”
-              </p>
-            </blockquote>
-          </div>
-          
-        </div>
+          {/* Copy */}
+          <div>
+            <p
+              data-reveal
+              className="mb-6 flex items-center gap-3 text-xs font-medium uppercase tracking-[0.28em] text-accent"
+            >
+              <span className="h-px w-8 bg-accent/60" />
+              About
+            </p>
 
+            <h2
+              data-reveal
+              style={{ '--d': '80ms' }}
+              className="max-w-2xl text-balance text-4xl font-bold leading-[1.05] tracking-tight text-white md:text-5xl lg:text-6xl"
+            >
+              I own features from{' '}
+              <span className="font-serif italic text-accent-soft">
+                schema to ship
+              </span>
+              .
+            </h2>
+
+            <div
+              data-reveal
+              style={{ '--d': '160ms' }}
+              className="mt-8 max-w-2xl space-y-6 text-lg font-light leading-relaxed text-white/65"
+            >
+              <p>
+                I&apos;m a full stack developer based in Bhuj, Gujarat, with four years
+                spent shipping production web products in Node.js, TypeScript and
+                React.js. Most of that time has been on real client software with real
+                deadlines — not prototypes.
+              </p>
+              <p>
+                At AeonX Digital I joined as team lead and delivered{' '}
+                <span className="text-white">LogystiX</span>, a SaaS logistics platform,
+                from architecture through production launch. I also built{' '}
+                <span className="text-white">SupplierX</span>, a multi-tenant
+                supplier-management SaaS. I ran the release side too — Dockerised
+                environments, Nginx, SSL and CI/CD pipelines on AWS.
+              </p>
+              <p>
+                Alongside delivery I handle onboarding for new joiners and have taught
+                Node.js and Python to interns at DIT Academy — which keeps me honest
+                about writing code other people have to read.
+              </p>
+            </div>
+
+            {/* Skills */}
+            <div
+              data-reveal
+              style={{ '--d': '240ms' }}
+              className="mt-14 border-t border-line pt-10"
+            >
+              <h3 className="mb-8 text-xs font-medium uppercase tracking-[0.28em] text-white/40">
+                Technical skills
+              </h3>
+
+              <dl className="grid gap-x-10 gap-y-8 sm:grid-cols-2">
+                {SKILLS.map((skill) => (
+                  <div key={skill.group}>
+                    <dt className="mb-3 text-sm font-medium text-white">{skill.group}</dt>
+                    <dd className="flex flex-wrap gap-2">
+                      {skill.items.map((item) => (
+                        <span
+                          key={item}
+                          className="rounded-md border border-line bg-white/3 px-2.5 py-1 text-[13px] text-white/60 transition-colors duration-300 hover:border-accent/40 hover:text-white"
+                        >
+                          {item}
+                        </span>
+                      ))}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );
