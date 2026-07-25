@@ -139,13 +139,14 @@ export default function Navbar() {
         </nav>
       </header>
 
-      {/* Mobile menu — a plain CSS clip-path transition, no animation library. */}
+      {/* Mobile menu — smooth fade & scale transition without clip-path GPU repaint glitch on mobile */}
       <div
         id="mobile-menu"
-        className="fixed inset-0 z-40 flex flex-col items-center justify-center bg-ink/97 backdrop-blur-xl transition-[clip-path] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] md:hidden"
-        style={{
-          clipPath: isMenuOpen ? 'circle(150% at 92% 4%)' : 'circle(0% at 92% 4%)',
-        }}
+        className={`fixed inset-0 z-40 flex flex-col items-center justify-center bg-ink/95 backdrop-blur-2xl transition-all duration-300 ease-out md:hidden ${
+          isMenuOpen
+            ? 'opacity-100 scale-100 pointer-events-auto'
+            : 'opacity-0 scale-95 pointer-events-none'
+        }`}
         aria-hidden={!isMenuOpen}
       >
         <nav className="flex flex-col items-center gap-6">

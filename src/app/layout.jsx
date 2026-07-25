@@ -67,8 +67,11 @@ export const metadata = {
     images: ['/og.jpg'],
   },
   icons: {
-    // Icons paths are emitted verbatim by Next — use asset() for consistency.
-    icon: asset('/favicon.svg'),
+    icon: [
+      { url: asset('/favicon.svg'), type: 'image/svg+xml' }
+    ],
+    shortcut: [asset('/favicon.svg')],
+    apple: [asset('/favicon.svg')],
   },
   robots: {
     index: true,
