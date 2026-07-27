@@ -19,10 +19,13 @@ export const SITE = {
   linkedin: 'https://www.linkedin.com/in/solankijd007',
   resume: '/Jagdish-Solanki-CV.pdf',
   url: 'https://solankijd007.github.io',
-  // NOTE(jagdish): the CV lists AeonX as "Sep 2024 – Dec 2025" (ended) while its
-  // summary says "currently team lead". The site follows the end date. If you are
-  // still there, switch the wording here, in Hero's FACTS, in About's second
-  // paragraph, and in layout.jsx's description back to the present tense.
+  // The CV's own summary says "currently team lead" while its dates say
+  // "Sep 2024 – Dec 2025". Confirmed with Jagdish on 2026-07-27: the role has
+  // ended and he is not currently employed, so the past tense here is correct
+  // and the CV summary is the stale half. This is also why the JSON-LD in
+  // layout.jsx omits `worksFor` — schema.org reads it as *current* employment.
+  // If that changes, update the tense here, in Hero's FACTS, in About's second
+  // paragraph and in layout.jsx's description, and add `worksFor` back.
   summary:
     'Full stack developer with 4 years shipping production web products in Node.js, TypeScript and React.js. Most recently team lead at AeonX Digital, where I delivered LogystiX end to end and built SupplierX.',
 };
