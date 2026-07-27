@@ -18,8 +18,8 @@ export const PROJECTS = [
   {
     id: '02',
     name: 'SupplierX',
-    domain: 'aeonx.supplierx.cloud',
-    href: 'https://aeonx.supplierx.cloud',
+    domain: 'supplierx.cloud',
+    href: 'https://supplierx.cloud',
     status: 'Live',
     role: 'Backend architecture & delivery',
     description:
