@@ -56,7 +56,12 @@ export default function Navbar() {
             : 'border-b border-transparent py-5'
         }`}
       >
-        <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 md:px-10 lg:px-14">
+        {/* Both navs are labelled — two unlabelled navigation landmarks on one
+            page give assistive tech no way to tell them apart. */}
+        <nav
+          aria-label="Primary"
+          className="mx-auto flex max-w-7xl items-center justify-between px-6 md:px-10 lg:px-14"
+        >
           {/* -m-2/p-2 pushes the 36px badge out to a 52px tap area without
               changing where the logo sits. */}
           <a
@@ -116,6 +121,7 @@ export default function Navbar() {
             className="relative z-50 -mr-2.5 flex h-11 w-11 items-center justify-center text-white md:hidden"
             onClick={() => setIsMenuOpen((open) => !open)}
             aria-expanded={isMenuOpen}
+            aria-controls="mobile-menu"
             aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
           >
             <span className="flex h-5 w-6 flex-col justify-between">
@@ -149,7 +155,7 @@ export default function Navbar() {
         }`}
         aria-hidden={!isMenuOpen}
       >
-        <nav className="flex flex-col items-center gap-6">
+        <nav aria-label="Mobile" className="flex flex-col items-center gap-6">
           {NAV_LINKS.map((link) => (
             <a
               key={link.name}

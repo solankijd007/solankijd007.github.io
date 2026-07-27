@@ -1,61 +1,8 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { ALSO_DELIVERED, PROJECTS } from '../lib/projects';
 import { useReveal } from '../lib/useReveal';
-
-const PROJECTS = [
-  {
-    id: '01',
-    name: 'LogystiX',
-    domain: 'logystix.cloud',
-    href: 'https://logystix.cloud',
-    status: 'Live',
-    role: 'Team lead · delivered end to end',
-    description:
-      'SaaS logistics platform taken from architecture through production launch — inquiry and quotation flows on multi-tenant, role-based access.',
-    stack: ['Node.js', 'TypeScript', 'React.js', 'MySQL', 'Docker'],
-  },
-  {
-    id: '02',
-    name: 'SupplierX',
-    domain: 'aeonx.supplierx.cloud',
-    href: 'https://aeonx.supplierx.cloud',
-    status: 'Live',
-    role: 'Backend architecture & delivery',
-    description:
-      'Procure-to-Pay SaaS: supplier onboarding with PAN/GST verification, purchase order and approval workflows, and SAP integration on a multi-tenant Node.js backend.',
-    stack: ['Node.js', 'TypeScript', 'React.js', 'MySQL'],
-  },
-  {
-    id: '03',
-    name: 'Hunter Home CMS',
-    domain: 'hunterhome.co.nz',
-    href: 'https://hunterhome.co.nz',
-    status: 'Live',
-    role: 'Backend & integrations',
-    description:
-      'Admin and content-management backend for a New Zealand retailer, built on the BigCommerce API.',
-    stack: ['Node.js', 'BigCommerce API'],
-  },
-  {
-    id: '04',
-    name: 'DIT Academy',
-    domain: 'academy.ditcloud.in',
-    href: 'https://academy.ditcloud.in',
-    status: 'Live',
-    role: 'Full stack · also taught on it',
-    description:
-      'Training platform for the company internship programme, where I also taught Node.js and Python to interns.',
-    stack: ['Node.js', 'React.js', 'MySQL'],
-  },
-];
-
-const ALSO_DELIVERED = [
-  'Memory Kite',
-  'PHC',
-  'Afford A Boost',
-  'Arabic Book A Month (custom Shopify app)',
-];
 
 export default function Projects() {
   const sectionRef = useReveal();
@@ -93,6 +40,7 @@ export default function Projects() {
   return (
     <section
       id="work"
+      aria-labelledby="work-heading"
       ref={sectionRef}
       className="relative w-full overflow-hidden bg-ink-2 px-6 py-24 md:px-10 md:py-32 lg:px-14"
     >
@@ -109,6 +57,7 @@ export default function Projects() {
               Selected work
             </p>
             <h2
+              id="work-heading"
               data-reveal
               style={{ '--d': '80ms' }}
               className="max-w-2xl text-balance text-4xl font-bold leading-[1.05] tracking-tight text-white md:text-5xl lg:text-6xl"

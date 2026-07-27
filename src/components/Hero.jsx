@@ -63,6 +63,7 @@ export default function Hero() {
   return (
     <section
       id="top"
+      aria-labelledby="hero-heading"
       className="relative flex min-h-svh w-full items-center overflow-hidden bg-ink pb-16 pt-28 md:pb-20"
     >
       {/* Ambient light behind the portrait so the hero isn't a flat black field. */}
@@ -81,8 +82,20 @@ export default function Hero() {
             {SITE.role} · {SITE.specialism}
           </p>
 
-          <h1 className="text-balance text-5xl font-bold leading-[0.95] tracking-tight text-white sm:text-6xl lg:text-7xl">
+          {/* The visible H1 is the name alone — that is the design, and the name
+              is the entity people search for. The appended span is off-screen
+              only: it carries the role and location that a search engine wants
+              inside the H1, and every word of it is already visible on the page
+              (the eyebrow above, the Contact section's "Based in"). */}
+          <h1
+            id="hero-heading"
+            className="text-balance text-5xl font-bold leading-[0.95] tracking-tight text-white sm:text-6xl lg:text-7xl"
+          >
             {SITE.name}
+            <span className="sr-only">
+              {' '}
+              — {SITE.role} ({SITE.specialism}) in {SITE.location}
+            </span>
           </h1>
 
           <p className="mt-7 max-w-xl text-lg font-light leading-relaxed text-white/70 md:text-xl">
@@ -163,10 +176,15 @@ export default function Hero() {
                 data-active={i === index}
                 className="portrait-plate absolute inset-0 block"
               >
+                {/* Only the photo that renders on load carries alt text. The
+                    button's aria-label is what screen readers announce either
+                    way, but image search reads `alt` — and repeating the same
+                    sentence on all four <img> tags on the page reads as
+                    stuffing, so the rest stay empty and out of the a11y tree. */}
                 <img
                   src={photo.src}
-                  alt=""
-                  aria-hidden="true"
+                  alt={i === 0 ? `${SITE.name}, ${SITE.role} based in ${SITE.location}` : ''}
+                  aria-hidden={i === 0 ? undefined : 'true'}
                   // Only the portrait that renders on load competes for
                   // priority — the rest are 20KB of pre-warmed crossfade.
                   fetchPriority={i === 0 ? 'high' : 'low'}

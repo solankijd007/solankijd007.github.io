@@ -40,6 +40,7 @@ export default function Contact() {
   return (
     <section
       id="contact"
+      aria-labelledby="contact-heading"
       ref={sectionRef}
       className="relative w-full overflow-hidden bg-ink px-6 py-24 md:px-10 md:py-32 lg:px-14"
     >
@@ -60,6 +61,7 @@ export default function Contact() {
             </p>
 
             <h2
+              id="contact-heading"
               data-reveal
               style={{ '--d': '80ms' }}
               className="max-w-xl text-balance text-4xl font-bold leading-[1.05] tracking-tight text-white md:text-5xl lg:text-6xl"
@@ -224,21 +226,6 @@ export default function Contact() {
             </form>
           </div>
         </div>
-
-        <footer className="mt-24 flex flex-col items-center justify-between gap-4 border-t border-line pt-8 text-xs text-white/35 sm:flex-row">
-          {/* Prerendered at build time, re-evaluated on the client — the year can
-              legitimately differ across a New Year boundary. */}
-          <p suppressHydrationWarning>
-            © {new Date().getFullYear()} {SITE.name}. Built with Next.js &amp; Tailwind
-            CSS.
-          </p>
-          <a
-            href="#top"
-            className="tap inline-block transition-colors duration-300 hover:text-white"
-          >
-            Back to top ↑
-          </a>
-        </footer>
       </div>
     </section>
   );

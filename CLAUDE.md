@@ -20,7 +20,7 @@ Runtime dependencies are only `next`, `react` and `react-dom` — **keep it that
 - `src/app/page.jsx` stacks the section components from `src/components/`: Navbar, Hero, About, Experience, Projects, Contact.
 - `src/lib/site.js` is the single source of truth for personal details (name, email, phone, GitHub/LinkedIn, resume path, canonical URL). Change contact info there, not in components. It also exports `asset()`, which prefixes `/public` paths with the basePath — plain `<a>`/`<img>` tags need this since Next only rewrites basePath for `next/link` and `next/image`.
 - `src/lib/useReveal.js` is the scroll-reveal hook (IntersectionObserver). Attach its ref to a section; the section gets an `.in` class on first intersection and CSS animates every `[data-reveal]` descendant. Stagger children with `style={{ '--d': '120ms' }}`. The observer disconnects after firing once.
-- CV content lives in module-level constants at the top of each section component (`ROLES`, `PROJECTS`, `SKILLS`, `STATS`, …).
+- CV content lives in module-level constants at the top of each section component (`ROLES`, `SKILLS`, `STATS`, …). The one exception is `src/lib/projects.js` (`PROJECTS`, `ALSO_DELIVERED`), which is shared because `layout.jsx` also feeds it into the JSON-LD graph — structured data that disagrees with the visible page is worse than no structured data at all.
 
 ### The Hero reveal
 
@@ -73,19 +73,32 @@ To re-verify after layout changes, the scratchpad scripts hit-test with `element
 - `images.unoptimized: true` is required in `next.config.mjs` for static export — keep it. Because of that, `next/image` optimizes nothing and only adds JS, so plain `<img>` with a pre-sized WebP is the correct choice here (the `no-img-element` lint rule is suppressed with a reason at each use).
 - Pre-optimize new images before committing them — resize to their real display size and convert to WebP. `sharp` is available transitively via Next. The repo previously carried 8.5MB of PNGs, including a 5.7MB file that was never imported.
 
+## SEO
+
+Everything is emitted at build time — there is no runtime SEO layer to debug.
+
+- `src/app/robots.js`, `sitemap.js` and `manifest.js` are Next metadata routes. They need `export const dynamic = 'force-static'` to survive `output: 'export'`; without it the build fails rather than silently skipping them.
+- The sitemap lists exactly one URL. In-page anchors (`#about`, `#work`, …) are **not** separate documents — listing them gets the sitemap flagged for duplicate URLs.
+- `metadata.alternates.canonical` is set, so `?utm_…` and `#anchor` arrivals collapse onto one indexable URL.
+- Structured data is a single `@graph` in `layout.jsx` — `WebSite` → `ProfilePage` → `Person`, cross-referenced by `@id`, plus an `ItemList` of the shipped products. One graph rather than several `<script>` blocks: the `@id` links are what make a search engine treat this as one entity instead of several unrelated mentions. Validate changes at https://validator.schema.org and Google's Rich Results Test.
+- The meta description is deliberately under ~160 characters (Google truncates past that); social cards use the longer `socialDescription`.
+- The visible `<h1>` is the name alone. The role and location ride along in an `sr-only` span — legitimate because every word of it is visible elsewhere on the page. Don't put anything in there that isn't.
+- Only the first portrait in each section carries `alt` text; the rest are `alt=""` + `aria-hidden`. Four copies of the same sentence reads as keyword stuffing, and the button's `aria-label` is what screen readers announce regardless.
+- `apple-touch-icon.png` / `icon-192.png` / `icon-512.png` are generated from `public/favicon.svg` with `sharp`. iOS ignores an SVG apple-touch-icon. Regenerate them if the favicon changes.
+- Still outstanding: no Search Console verification token (there's a commented `verification` key in `layout.jsx` for it), and the site has no inbound links — which is the actual ranking bottleneck, not the markup.
+
 ## Deployment (GitHub Pages)
 
-- `next.config.mjs` sets `basePath: '/solankijd007'` **only in production** — dev runs at `/`. It also re-exports it as `NEXT_PUBLIC_BASE_PATH` for `asset()`.
-- Next does **not** apply the basePath everywhere. `openGraph`/`twitter` images resolve against `metadataBase`, but `metadata.icons` paths are emitted verbatim and 404 in production — wrap them in `asset()`. Same for any hand-written `<a href>` / `<img src>` pointing at `/public`. After changing metadata or adding public assets, check that nothing slipped through:
+- The site is deployed as a **user site** (`solankijd007.github.io`), so it lives at the web root and `next.config.mjs` sets **no** `basePath`. `asset()` in `src/lib/site.js` is consequently an identity function — it is kept, and kept in use, only so that moving to a project repo (`/repo-name`) is a one-line change there instead of an audit of every hand-written `href`.
+- Next does not apply a basePath everywhere even when one is set: `openGraph`/`twitter` images resolve against `metadataBase`, but `metadata.icons` paths are emitted verbatim. Wrap those, and any hand-written `<a href>` / `<img src>` pointing at `/public`, in `asset()`. If a basePath is ever reintroduced, check nothing slipped through:
   ```sh
-  grep -oE '(href|src)="/[^"]*"' out/index.html | sort -u | grep -v '/solankijd007'
+  grep -oE '(href|src)="/[^"]*"' out/index.html | sort -u | grep -v '/<basePath>'
   ```
-- Pushing to `main` triggers `.github/workflows/deploy.yml`: `npm ci` → `npm run export` → publish `out/` to the `gh-pages` branch (peaceiris/actions-gh-pages). See `DEPLOY_TO_GITHUB_PAGES.md` for the Pages setup details.
-- To check the production build locally, serve `out/` under a matching path (the basePath means serving it at the web root 404s on every asset):
+- Pushing to `main` triggers `.github/workflows/deploy.yml`: `npm ci` → `npm run export` → `actions/upload-pages-artifact` → `actions/deploy-pages`. This is the official Pages-artifact flow, so the repo's Pages source must stay set to **GitHub Actions**, not a branch. The `gh-pages` branch still on the remote is a leftover from the old peaceiris setup and is no longer deployed from — don't push to it. See `DEPLOY_TO_GITHUB_PAGES.md` for the Pages setup details.
+- To check the production build locally:
   ```sh
-  npm run build
-  mkdir -p /tmp/wwwroot && ln -sfn "$PWD/out" /tmp/wwwroot/solankijd007
-  npx serve /tmp/wwwroot -l 4321   # → http://localhost:4321/solankijd007/
+  npm run export
+  npx serve out -l 4321   # → http://localhost:4321/
   ```
 
 ## Contact form

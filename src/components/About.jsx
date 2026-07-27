@@ -55,6 +55,7 @@ export default function About() {
   return (
     <section
       id="about"
+      aria-labelledby="about-heading"
       ref={sectionRef}
       className="relative w-full overflow-hidden bg-ink-2 px-6 py-24 md:px-10 md:py-32 lg:px-14"
     >
@@ -84,8 +85,12 @@ export default function About() {
                       add JS without optimizing anything. */}
                   <img
                     src={photo.src}
-                    alt=""
-                    aria-hidden="true"
+                    alt={
+                      i === 0
+                        ? `${SITE.name} — full stack developer working in Node.js, TypeScript and React`
+                        : ''
+                    }
+                    aria-hidden={i === 0 ? undefined : 'true'}
                     loading="lazy"
                     decoding="async"
                     className="about-plate h-full w-full object-cover object-center"
@@ -122,6 +127,7 @@ export default function About() {
             </p>
 
             <h2
+              id="about-heading"
               data-reveal
               style={{ '--d': '80ms' }}
               className="max-w-2xl text-balance text-4xl font-bold leading-[1.05] tracking-tight text-white md:text-5xl lg:text-6xl"

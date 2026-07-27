@@ -35,6 +35,7 @@ export default function Experience() {
   return (
     <section
       id="experience"
+      aria-labelledby="experience-heading"
       ref={sectionRef}
       className="relative w-full bg-ink px-6 py-24 md:px-10 md:py-32 lg:px-14"
     >
@@ -48,6 +49,7 @@ export default function Experience() {
             Experience
           </p>
           <h2
+            id="experience-heading"
             data-reveal
             style={{ '--d': '80ms' }}
             className="max-w-3xl text-balance text-4xl font-bold leading-[1.05] tracking-tight text-white md:text-5xl lg:text-6xl"
