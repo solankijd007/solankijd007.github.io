@@ -49,6 +49,17 @@ The portrait shows in two places (Hero and About) and both are clickable — a c
 
 Adding a third photo is just another entry in `PORTRAITS` — the plates, the swap arithmetic and the crossfade are all length-driven.
 
+### Mobile navigation
+
+Below `md`, navigation is a floating bottom dock in `Navbar.jsx`, not a hamburger with a fullscreen overlay. The top bar on a phone keeps only the logo and the Resume button — the four section links live in the dock.
+
+- The dock is `position: fixed` and its wrapper carries the scrim gradient. Putting the scrim on a sibling *above* the dock leaves the inset strip under it transparent, and page content scrolls through that gap.
+- `Footer.jsx` pads its bottom by the dock's height on phones. Without it the dock parks on the copyright line, which is the last thing on the page and has nothing left to scroll past it.
+- The active tab comes from a scroll spy in the same rAF-throttled handler that drives the scrolled header: a probe line at 45% of the viewport, sections measured fresh each pass. Keep the bottom clamp — `#contact` is short enough that the page can run out of scroll before its top ever crosses the probe, so the last tab would otherwise never light up. Desktop reads the same `activeId` for its underline.
+- One indicator slides across the tabs rather than each tab drawing its own background, so the tabs have to stay equal-width (`flex-1`) — the transform is a plain multiple of the tab width.
+- Labels are 10px with no letter-spacing and `whitespace-nowrap`. At 320px a tab is 71px wide and "Experience" is the longest label on the site; tracking is what pushes it onto a second line.
+- The dock's About tab renders the live portrait from `usePortrait()`, so it swaps along with the Hero and About cards.
+
 ### Styling
 
 - Tailwind CSS 4 via PostCSS (`@tailwindcss/postcss`); everything global is in `src/app/globals.css`.

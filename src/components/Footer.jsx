@@ -9,7 +9,10 @@ import { SITE } from '../lib/site';
    lines up with the section above it. */
 export default function Footer() {
   return (
-    <footer className="w-full bg-ink px-6 pb-10 md:px-10 lg:px-14">
+    /* The extra bottom padding on phones is clearance for the fixed dock in
+       Navbar — without it the dock parks on top of the copyright line, which is
+       the last thing on the page and has nothing left to scroll past it. */
+    <footer className="w-full bg-ink px-6 pb-[calc(8rem+env(safe-area-inset-bottom))] md:px-10 md:pb-10 lg:px-14">
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 border-t border-line pt-8 text-xs text-white/35 sm:flex-row">
         {/* Prerendered at build time, re-evaluated on the client — the year can
             legitimately differ across a New Year boundary. */}
