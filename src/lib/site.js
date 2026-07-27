@@ -12,7 +12,10 @@ export const SITE = {
   phone: '+91 91060 20722',
   phoneHref: '+919106020722',
   github: 'https://github.com/solankijd007',
-  // TODO(jagdish): swap in your real LinkedIn vanity URL if it differs.
+  // Verified against the profile's "Public profile & URL" field. Both of these
+  // feed `sameAs` in the JSON-LD graph, which is how a search engine confirms
+  // these accounts and this site are the same person — check the live URL
+  // before changing either.
   linkedin: 'https://www.linkedin.com/in/solankijd007',
   resume: '/Jagdish-Solanki-CV.pdf',
   url: 'https://solankijd007.github.io',
