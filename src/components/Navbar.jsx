@@ -200,14 +200,24 @@ export default function Navbar() {
           >
             {/* One indicator that slides, rather than a background per tab: the
                 movement is what tells you the page moved under you. Equal-width
-                tabs make the transform a plain multiple of the tab width. */}
+                tabs make the transform a plain multiple of the tab width.
+
+                The width subtracts the nav's own `p-1.5` on both sides (0.75rem
+                total) before dividing. A percentage width on an absolutely
+                positioned element resolves against the containing block's
+                *padding* box, but a `flex-1` tab is a share of the *content*
+                box — leaving it at `100 / n` made the pill 3px too wide and
+                pushed it a further 3px per tab, so by the last tab it sat 12px
+                past the tab and was sliced off by the nav's `overflow-hidden`.
+                Once the width matches one tab, `translateX` (which resolves
+                against the element's own width) lands exactly on each tab. */}
             <span
               aria-hidden="true"
               style={{
-                width: `${100 / NAV_LINKS.length}%`,
+                width: `calc((100% - 0.75rem) / ${NAV_LINKS.length})`,
                 transform: `translateX(${Math.max(activeIndex, 0) * 100}%)`,
               }}
-              className={`pointer-events-none absolute inset-y-1.5 left-1.5 -z-0 rounded-[20px] border border-white/8 bg-white/8 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+              className={`pointer-events-none absolute inset-y-1.5 left-1.5 -z-0 rounded-[20px] border border-accent/25 bg-accent/10 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
                 activeIndex < 0 ? 'opacity-0' : 'opacity-100'
               }`}
             />
